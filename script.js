@@ -15,9 +15,8 @@ let matchedCards = [];
 let currentPlayer = 1;
 let gameMode = 1; // Standardmäßig Modus 1 (gleiche Fragen)
 
-// Firebase-Initialisierung (vorher in index.html eingefügt)
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-const database = getDatabase();
+// Verwende Firebase direkt, da es in index.html eingebunden wurde
+const database = firebase.database();
 
 // Prüfen ob Daten im Local Storage vorhanden sind, wenn ja, laden
 function loadGameState() {
