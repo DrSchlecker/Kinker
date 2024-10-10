@@ -83,8 +83,12 @@
             appId: "1:986360648193:web:065d171dc2c5354d7ee600"
         };
 
-        // Firebase initialisieren
-        firebase.initializeApp(firebaseConfig);
+         // Überprüfen, ob die App bereits initialisiert ist, um einen doppelten Aufruf zu vermeiden
+      if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      } else {
+      firebase.app(); // Verwende die bereits initialisierte App
+  }
         const database = firebase.database();
 
         // Firebase Funktionen, um Daten zu schreiben
