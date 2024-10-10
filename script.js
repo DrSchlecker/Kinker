@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('full-reset-button').addEventListener('click', fullReset);
+ // Überprüfe, ob Firebase korrekt geladen wurde
+    console.log("Firebase loaded: ", firebase);  // Überprüft, ob Firebase-Objekt existiert
 
+    // Weiter mit deiner Spiellogik...
     const questions = [
         { id: 1, title: "Frage 1", body: "Erklärung zur Frage 1" },
         { id: 2, title: "Frage 2", body: "Erklärung zur Frage 2" },
