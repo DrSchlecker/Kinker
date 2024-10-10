@@ -1,6 +1,6 @@
 // Fragekarten Platzhalter (Du kannst später hier die tatsächlichen Fragen einfügen)
 const questions = [
-    { id: 1, text: "Frage 1" },
+    { id: 1, text: "test test test" },
     { id: 2, text: "Frage 2" },
     { id: 3, text: "Frage 3" },
     { id: 4, text: "Frage 4" },
