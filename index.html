@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,18 +24,25 @@
 <body>
 
     <h1>Fragen-Spiel</h1>
-    <div id="card-container">
+
+    <div>
+        <h3>Wähle einen Spielmodus</h3>
+        <button id="mode1-button">Modus 1: Gleiche Fragen für beide Spieler</button>
+        <button id="mode2-button">Modus 2: Unterschiedliche Fragen für beide Spieler</button>
+    </div>
+
+    <div id="card-container" style="display:none;">
         <div class="card" id="question-card">Hier wird die Frage angezeigt</div>
         <div class="buttons">
-            <button id="yes-button">Yes</button>
-            <button id="no-button">No</button>
+            <button id="yes-button">Ja</button>
+            <button id="no-button">Nein</button>
         </div>
     </div>
 
     <div>
         <h2>Spiel-Verlauf</h2>
-        <p id="info">Wait for answer...</p>
-        <button id="reset-button">Deck reset</button>
+        <p id="info">Warte auf die Antwort...</p>
+        <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
     </div>
 
     <script src="script.js"></script>
