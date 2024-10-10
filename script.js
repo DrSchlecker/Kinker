@@ -180,17 +180,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // Reset für das Deck (nur nicht gematchte Karten)
     function resetGame() {
         currentQuestionIndex = 0;
-        player1Responses = {};
-        player2Responses = {};
-        discardedCards = [];
-        shuffle(questions);
-        saveGameState();
-        displayNextQuestion();
+        player1Responses = {};  // Spieler 1 Antworten zurücksetzen
+        player2Responses = {};  // Spieler 2 Antworten zurücksetzen
+        discardedCards = [];    // Ablagestapel leeren
+        shuffle(questions);     // Karten neu mischen
+        saveGameState();        // Neuen Zustand speichern
+        displayNextQuestion();  // Nächste Frage anzeigen
     }
 
     // Vollständiger Reset (inklusive Match-Stapel und Antworten)
     function fullReset() {
-        matchedCards = [];
+        matchedCards = [];      // Gematchte Karten zurücksetzen
         player1Responses = {};  // Antworten von Spieler 1 zurücksetzen
         player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
         discardedCards = [];    // Ablagestapel zurücksetzen
