@@ -1,19 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Firebase-Konfiguration
-    const firebaseConfig = {
-        apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
-        authDomain: "kinker-2024.firebaseapp.com",
-        databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "kinker-2024",
-        storageBucket: "kinker-2024.appspot.com",
-        messagingSenderId: "986360648193",
-        appId: "1:986360648193:web:065d171dc2c5354d7ee600"
-    };
-
-    // Firebase initialisieren
-    firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized: ", firebase.app().name);  // Debug-Ausgabe, um sicherzustellen, dass Firebase initialisiert wurde
-
     document.getElementById('full-reset-button').addEventListener('click', fullReset);
 
     const questions = [
