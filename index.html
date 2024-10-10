@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragen-Spiel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .card {
+            border: 1px solid #000;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Fragen-Spiel</h1>
+    <div id="card-container">
+        <div class="card" id="question-card">Hier wird die Frage angezeigt</div>
+        <div class="buttons">
+            <button id="yes-button">Yes</button>
+            <button id="no-button">No</button>
+        </div>
+    </div>
+
+    <div>
+        <h2>Spiel-Verlauf</h2>
+        <p id="info">Wait for answer...</p>
+        <button id="reset-button">Deck reset</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
