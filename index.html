@@ -65,16 +65,15 @@
 
 
     <!-- Firebase SDKs einbinden -->
-    <script type="module">
-        // Import Firebase functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 
+    <script>
         // Firebase-Konfiguration
         const firebaseConfig = {
             apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
             authDomain: "kinker-2024.firebaseapp.com",
-            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app"
+            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "kinker-2024",
             storageBucket: "kinker-2024.appspot.com",
             messagingSenderId: "986360648193",
@@ -82,20 +81,20 @@
         };
 
         // Firebase initialisieren
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
         // Firebase Funktionen, um Daten zu schreiben
         function writeData(player, answer) {
-            set(ref(database, 'answers/' + player), {
+            firebase.database().ref('answers/' + player).set({
                 answer: answer
             });
         }
 
         // Firebase Funktionen, um Daten zu lesen und Änderungen zu überwachen
         function readData() {
-            const dbRef = ref(database);
-            onValue(child(dbRef, `answers`), (snapshot) => {
+            const dbRef = firebase.database().ref();
+            firebase.database().ref('answers').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     console.log("Aktuelle Antworten: ", data);
@@ -108,12 +107,10 @@
 
         // Firebase-Funktionen aufrufen
         readData(); // Lies die Daten bei Seitenaufruf
-        
+    </script>
+
     <!-- Dein JavaScript -->
     <script src="script.js"></script>
-    <script type="module">
-        
-    </script>
 
 </body>
 </html>
