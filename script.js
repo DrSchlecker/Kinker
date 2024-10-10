@@ -21,7 +21,11 @@ document.addEventListener("DOMContentLoaded", function() {
         { id: 2, title: "Frage 2", body: "Erklärung zur Frage 2" },
         { id: 3, title: "Frage 3", body: "Erklärung zur Frage 3" },
         { id: 4, title: "Frage 4", body: "Erklärung zur Frage 4" },
-        { id: 5, title: "Frage 5", body: "Erklärung zur Frage 5" }
+        { id: 5, title: "Frage 5", body: "Erklärung zur Frage 4" },
+        { id: 6, title: "Frage 6", body: "Erklärung zur Frage 4" },
+        { id: 7, title: "Frage 7", body: "Erklärung zur Frage 4" },
+        { id: 8, title: "Frage 8", body: "Erklärung zur Frage 4" },
+        { id: 9, title: "Frage 9", body: "Erklärung zur Frage 5" }
     ];
 
     let currentQuestionIndex = 0;
