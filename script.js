@@ -71,17 +71,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Match überprüfen und visuell anzeigen
-    function checkMatch(player1Answer, player2Answer, question) {
-        if (player1Answer === 'yes' && player2Answer === 'yes') {
-            matchedCards.push(question);  // Match speichern
-            displayMatch(question);  // Match-Animation anzeigen
-            filterOutMatchedCards();  // Entferne gematchte Karten aus dem Deck
-        } else {
-            discardedCards.push(question);
-        }
-        saveGameState();
+// Match überprüfen und visuell anzeigen
+function checkMatch(player1Answer, player2Answer, question) {
+    // Überprüfen, ob die Frage bereits gematcht wurde
+    const alreadyMatched = matchedCards.some(match => match.id === question.id);
+
+    if (player1Answer === 'yes' && player2Answer === 'yes' && !alreadyMatched) {
+        matchedCards.push(question);  // Match nur speichern, wenn noch nicht gematched
+        displayMatch(question);  // Match-Animation anzeigen
+        filterOutMatchedCards();  // Entferne gematchte Karten aus dem Deck
+    } else if (!alreadyMatched) {
+        discardedCards.push(question);
     }
+    saveGameState();
+}
+
 
     // Match-Animation und Anzeige
     function displayMatch(question) {
