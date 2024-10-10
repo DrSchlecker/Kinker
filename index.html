@@ -5,20 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fragen-Spiel</title>
     <style>
-        /* CSS-Styles hier */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+        }
+
+        .card {
+            border: 1px solid #000;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        @keyframes matchHighlight {
+            0% { background-color: white; transform: scale(1); }
+            50% { background-color: yellow; transform: scale(1.2); }
+            100% { background-color: white; transform: scale(1); }
+        }
+
+        .matched {
+            animation: matchHighlight 4s ease-in-out;
+        }
+
+        #match-stack-container {
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
     <h1>Fragen-Spiel</h1>
 
-    <!-- Spielmodus Buttons -->
     <div>
         <h3>Wähle einen Spielmodus</h3>
         <button id="mode1-button">Modus 1: Gleiche Fragen für beide Spieler</button>
         <button id="mode2-button">Modus 2: Unterschiedliche Fragen für beide Spieler</button>
     </div>
 
-    <!-- Kartenspiel Container -->
     <div id="card-container" style="display:none;">
         <div class="card" id="question-card">Hier wird die Frage angezeigt</div>
         <div class="buttons">
@@ -34,18 +65,16 @@
         <button id="full-reset-button" style="display:block;">Vollständiger Reset</button>
     </div>
 
-    <!-- Match-Stapel -->
     <div id="match-stack-container">
         <h2>Match-Stapel</h2>
         <div id="match-stack"></div>
     </div>
 
-    <!-- Firebase einbinden -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 
     <script>
-        // Firebase-Konfiguration
         const firebaseConfig = {
             apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
             authDomain: "kinker-2024.firebaseapp.com",
@@ -56,12 +85,9 @@
             appId: "1:986360648193:web:065d171dc2c5354d7ee600"
         };
 
-      // Firebase initialisieren
         firebase.initializeApp(firebaseConfig);
-        console.log("Firebase initialized: ", firebase.app().name);  // Debug-Ausgabe
     </script>
 
-    <!-- Dein JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
