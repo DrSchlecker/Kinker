@@ -15,36 +15,21 @@
             padding: 20px;
             margin: 20px;
             display: inline-block;
+            transition: transform 0.5s, background-color 0.5s;
         }
         .buttons {
             margin-top: 20px;
         }
-
-        /* Animation, wenn ein Match gefunden wird */
-        @keyframes matchHighlight {
-            0% { background-color: white; }
-            50% { background-color: yellow; }
-            100% { background-color: white; }
-        }
+        /* Animation für Match */
         .matched {
-            animation: matchHighlight 2s ease-in-out;
+            transform: scale(1.5);
+            background-color: yellow;
         }
-
-        /* Match-Animation für die Karte */
-        .matched-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(2); /* Vergrößern */
-            background-color: #4CAF50; /* Grüne Farbe */
-            color: white;
-            padding: 50px;
-            z-index: 9999;
-            transition: all 0.3s ease-in-out;
-        }
-
         #match-stack-container {
             margin-top: 30px;
+        }
+        #full-reset-button {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -70,6 +55,7 @@
         <h2>Spiel-Verlauf</h2>
         <p id="info">Warte auf die Antwort...</p>
         <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
+        <!-- Vollständiger Reset Button -->
         <button id="full-reset-button" style="display:block;">Vollständiger Reset</button>
     </div>
 
@@ -79,8 +65,8 @@
         <div id="match-stack"></div>
     </div>
 
-    <!-- Firebase SDK und dein JS-Code -->
+    <!-- Dein JavaScript -->
     <script src="script.js"></script>
+
 </body>
 </html>
-
