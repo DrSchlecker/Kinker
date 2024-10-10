@@ -1,4 +1,4 @@
-// Fragekarten Platzhalter (Du kannst später hier die tatsächlichen Fragen einfügen)
+// Fragekarten Platzhalter
 const questions = [
     { id: 1, text: "Frage 1" },
     { id: 2, text: "Frage 2" },
@@ -14,9 +14,6 @@ let discardedCards = [];
 let matchedCards = [];
 let currentPlayer = 1;
 let gameMode = 1; // Standardmäßig Modus 1 (gleiche Fragen)
-
-// Verwende Firebase direkt, da es in index.html eingebunden wurde
-const database = firebase.database();
 
 // Prüfen ob Daten im Local Storage vorhanden sind, wenn ja, laden
 function loadGameState() {
@@ -50,16 +47,16 @@ function shuffle(array) {
 
 // Funktion, um Antworten in Firebase zu speichern
 function saveAnswerToFirebase(player, questionId, answer) {
-    set(ref(database, `responses/player${player}/${questionId}`), {
+    firebase.database().ref('responses/player' + player + '/' + questionId).set({
         answer: answer
     });
 }
 
 // Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
 function listenForAnswers(questionId) {
-    onValue(ref(database, `responses/player1/${questionId}`), (snapshot) => {
+    firebase.database().ref('responses/player1/' + questionId).on('value', (snapshot) => {
         const player1Answer = snapshot.val() ? snapshot.val().answer : null;
-        onValue(ref(database, `responses/player2/${questionId}`), (snapshot) => {
+        firebase.database().ref('responses/player2/' + questionId).on('value', (snapshot) => {
             const player2Answer = snapshot.val() ? snapshot.val().answer : null;
             checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
         });
