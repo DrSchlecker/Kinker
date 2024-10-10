@@ -1,18 +1,12 @@
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('full-reset-button').addEventListener('click', fullReset);
 
-    // Der Rest deines bisherigen Codes
     const questions = [
         { id: 1, title: "Frage 1", body: "Erklärung zur Frage 1" },
         { id: 2, title: "Frage 2", body: "Erklärung zur Frage 2" },
         { id: 3, title: "Frage 3", body: "Erklärung zur Frage 3" },
         { id: 4, title: "Frage 4", body: "Erklärung zur Frage 4" },
-        { id: 5, title: "Frage 5", body: "Erklärung zur Frage 5" },
-        { id: 6, title: "Frage 6", body: "Erklärung zur Frage 5" },
-        { id: 7, title: "Frage 7", body: "Erklärung zur Frage 5" },
-        { id: 8, title: "Frage 8", body: "Erklärung zur Frage 5" },
-        { id: 9, title: "Frage 9", body: "Erklärung zur Frage 5" },
-        { id: 10, title: "Frage 10", body: "Erklärung zur Frage 5" }
+        { id: 5, title: "Frage 5", body: "Erklärung zur Frage 5" }
     ];
 
     let currentQuestionIndex = 0;
@@ -65,58 +59,48 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-// Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
-function listenForAnswers(questionId) {
-    // Überprüfe Spieler 1's Antwort einmalig
-    firebase.database().ref('responses/player1/' + questionId).once('value', (snapshot) => {
-        const player1Answer = snapshot.val() ? snapshot.val().answer : null;
-        
-        // Überprüfe Spieler 2's Antwort einmalig
-        firebase.database().ref('responses/player2/' + questionId).once('value', (snapshot) => {
-            const player2Answer = snapshot.val() ? snapshot.val().answer : null;
-            checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
+    // Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
+    function listenForAnswers(questionId) {
+        firebase.database().ref('responses/player1/' + questionId).on('value', (snapshot) => {
+            const player1Answer = snapshot.val() ? snapshot.val().answer : null;
+            firebase.database().ref('responses/player2/' + questionId).on('value', (snapshot) => {
+                const player2Answer = snapshot.val() ? snapshot.val().answer : null;
+                checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
+            });
         });
-    });
-}
-
-
-// Match überprüfen und visuell anzeigen
-function checkMatch(player1Answer, player2Answer, question) {
-    // Überprüfen, ob die Frage bereits gematcht wurde
-    const alreadyMatched = matchedCards.some(match => match.id === question.id);
-
-    // Nur einmal als Match hinzufügen, wenn noch nicht gematched
-    if (player1Answer === 'yes' && player2Answer === 'yes' && !alreadyMatched) {
-        matchedCards.push(question);  // Match nur speichern, wenn noch nicht gematched
-        displayMatch(question);  // Match-Animation anzeigen
-        filterOutMatchedCards();  // Entferne gematchte Karten aus dem Deck
-        saveGameState();  // Zustand speichern
-    } else if (!alreadyMatched) {
-        discardedCards.push(question);  // Karte zur Ablage hinzufügen, wenn kein Match
     }
-}
 
-// Match-Animation und Anzeige
-function displayMatch(question) {
-    const questionCard = document.getElementById('question-card');
-    
-    // Inhalt der Karte ändern und Animation starten
-    questionCard.innerHTML = `<h3>${question.title}</h3><p>${question.body}</p>`;
-    questionCard.classList.add('matched-animation');  // Match-Animation starten
+    // Match überprüfen und visuell anzeigen
+    function checkMatch(player1Answer, player2Answer, question) {
+        const alreadyMatched = matchedCards.some(match => match.id === question.id);
 
-    // Nach 4 Sekunden die Animation entfernen und zur nächsten Frage wechseln
-    setTimeout(() => {
-        questionCard.classList.remove('matched-animation');
-        
-        // Aktualisiere den Match-Stapel
+        if (player1Answer === 'yes' && player2Answer === 'yes' && !alreadyMatched) {
+            matchedCards.push(question);  // Match speichern
+            displayMatch(question);  // Match-Animation anzeigen
+            filterOutMatchedCards();  // Entferne gematchte Karten aus dem Deck
+        } else if (!alreadyMatched) {
+            discardedCards.push(question);
+        }
+        saveGameState();
+    }
+
+    // Match-Animation und Anzeige
+    function displayMatch(question) {
+        const questionCard = document.getElementById('question-card');
+        questionCard.innerHTML = `<h3>${question.title}</h3><p>${question.body}</p>`;
+        questionCard.classList.add('matched');  // Match-Animation starten
+
+        document.getElementById('info').textContent = `Match! Beide Spieler haben Ja gesagt zu: "${question.title}"`;
+
+        // Nach 4 Sekunden die Animation entfernen und zur nächsten Frage wechseln
+        setTimeout(() => {
+            questionCard.classList.remove('matched');
+            displayNextQuestion();  // Zeigt die nächste Frage an
+        }, 4000);
+
+        // Match-Stapel aktualisieren
         updateMatchStack();
-
-        // Zeige die nächste Frage an
-        displayNextQuestion();
-        
-    }, 4000);  // 4 Sekunden warten
-}
-
+    }
 
     // Match-Stapel anzeigen (nur Überschrift)
     function updateMatchStack() {
@@ -179,69 +163,54 @@ function displayMatch(question) {
                 saveAnswerToFirebase(2, currentQuestion.id, answer);
                 currentPlayer = 1;
             }
-
-            // Beide Antworten prüfen und bei "Ja" in den Match-Stapel verschieben
-            listenForAnswers(currentQuestion.id);
             currentQuestionIndex++;
+            listenForAnswers(currentQuestion.id);
         }
 
         saveGameState();
         displayNextQuestion();
     }
 
- // Reset für das Deck (nur nicht gematchte Karten und zurückgesetzte Antworten)
-function resetGame() {
-    currentQuestionIndex = 0;
-    
-    // Alle Antworten für Karten im Ablagestapel löschen
-    discardedCards.forEach(card => {
-        delete player1Responses[card.id];
-        delete player2Responses[card.id];
-    });
+    // Reset für das Deck (nur nicht gematchte Karten)
+    function resetGame() {
+        currentQuestionIndex = 0;
+        player1Responses = {};
+        player2Responses = {};
+        discardedCards = [];
+        shuffle(questions);
+        saveGameState();
+        displayNextQuestion();
+    }
 
-    // Ablagestapel leeren
-    discardedCards = [];
+    // Vollständiger Reset (inklusive Match-Stapel und Antworten)
+    function fullReset() {
+        matchedCards = [];
+        player1Responses = {};  // Antworten von Spieler 1 zurücksetzen
+        player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
+        discardedCards = [];    // Ablagestapel zurücksetzen
+        currentQuestionIndex = 0; // Index zurücksetzen
+        shuffle(questions);      // Fragen neu mischen
 
-    // Antworten im Local Storage ebenfalls entfernen
-    saveGameState();
+        // Local Storage löschen
+        localStorage.removeItem('player1Responses');
+        localStorage.removeItem('player2Responses');
+        localStorage.removeItem('discardedCards');
+        localStorage.removeItem('matchedCards');
 
-    // Fragen neu mischen und neu starten
-    shuffle(questions);
-    displayNextQuestion();
-}
+        // Firebase-Daten löschen (beide Spieler)
+        firebase.database().ref('responses/player1').remove();
+        firebase.database().ref('responses/player2').remove();
 
-
-// Vollständiger Reset (inklusive Match-Stapel und Antworten)
-function fullReset() {
-    matchedCards = [];
-    player1Responses = {};  // Antworten von Spieler 1 zurücksetzen
-    player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
-    discardedCards = [];    // Ablagestapel zurücksetzen
-    currentQuestionIndex = 0; // Index zurücksetzen
-    shuffle(questions);      // Fragen neu mischen
-
-    // Local Storage löschen
-    localStorage.removeItem('player1Responses');
-    localStorage.removeItem('player2Responses');
-    localStorage.removeItem('discardedCards');
-    localStorage.removeItem('matchedCards');
-
-    // Firebase-Daten löschen (beide Spieler)
-    firebase.database().ref('responses/player1').remove();
-    firebase.database().ref('responses/player2').remove();
-
-    // Match-Stapel leeren
-    updateMatchStack();  // Aktualisiert die Match-Stapel-Anzeige
-    displayNextQuestion();  // Zeigt die erste Frage nach dem Reset an
-}
-
-
+        // Match-Stapel leeren
+        updateMatchStack();  // Aktualisiert die Match-Stapel-Anzeige
+        displayNextQuestion();  // Zeigt die erste Frage nach dem Reset an
+    }
 
     // Event Listeners für die Buttons
     document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
     document.getElementById('no-button').addEventListener('click', () => handleAnswer('no'));
     document.getElementById('reset-button').addEventListener('click', resetGame);
-    document.getElementById('full-reset-button').addEventListener('click', fullReset);  // Für den vollen Reset-Button
+    document.getElementById('full-reset-button').addEventListener('click', fullReset);
 
     // Spielmodus wählen
     document.getElementById('mode1-button').addEventListener('click', () => {
