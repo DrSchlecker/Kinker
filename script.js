@@ -15,6 +15,10 @@ let matchedCards = [];
 let currentPlayer = 1;
 let gameMode = 1; // Standardmäßig Modus 1 (gleiche Fragen)
 
+// Firebase-Initialisierung (vorher in index.html eingefügt)
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+const database = getDatabase();
+
 // Prüfen ob Daten im Local Storage vorhanden sind, wenn ja, laden
 function loadGameState() {
     const savedPlayer1 = localStorage.getItem('player1Responses');
@@ -45,6 +49,63 @@ function shuffle(array) {
     return array;
 }
 
+// Funktion, um Antworten in Firebase zu speichern
+function saveAnswerToFirebase(player, questionId, answer) {
+    set(ref(database, `responses/player${player}/${questionId}`), {
+        answer: answer
+    });
+}
+
+// Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
+function listenForAnswers(questionId) {
+    onValue(ref(database, `responses/player1/${questionId}`), (snapshot) => {
+        const player1Answer = snapshot.val() ? snapshot.val().answer : null;
+        onValue(ref(database, `responses/player2/${questionId}`), (snapshot) => {
+            const player2Answer = snapshot.val() ? snapshot.val().answer : null;
+            checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
+        });
+    });
+}
+
+// Match überprüfen und visuell anzeigen
+function checkMatch(player1Answer, player2Answer, question) {
+    if (player1Answer === 'yes' && player2Answer === 'yes') {
+        matchedCards.push(question);
+        displayMatch(question);  // Match-Animation anzeigen
+    } else {
+        discardedCards.push(question);
+    }
+    saveGameState();
+}
+
+// Match-Animation und Anzeige
+function displayMatch(question) {
+    const questionCard = document.getElementById('question-card');
+    questionCard.classList.add('matched');  // Match-Animation starten
+
+    document.getElementById('info').textContent = `Match! Beide Spieler haben Ja gesagt zu: "${question.text}"`;
+
+    // Nach 2 Sekunden die Animation entfernen
+    setTimeout(() => {
+        questionCard.classList.remove('matched');
+    }, 2000);
+
+    // Match-Stapel aktualisieren
+    updateMatchStack();
+}
+
+// Match-Stapel anzeigen
+function updateMatchStack() {
+    const matchStackContainer = document.getElementById('match-stack');
+    matchStackContainer.innerHTML = '';  // Vorherige Einträge leeren
+
+    matchedCards.forEach((question, index) => {
+        const matchItem = document.createElement('div');
+        matchItem.textContent = `Match ${index + 1}: ${question.text}`;
+        matchStackContainer.appendChild(matchItem);
+    });
+}
+
 // Nächste Frage anzeigen (abhängig vom Spielmodus)
 function displayNextQuestion() {
     if (currentQuestionIndex >= questions.length) {
@@ -60,51 +121,46 @@ function displayNextQuestion() {
     } else {
         document.getElementById('info').textContent = `Spieler ${currentPlayer} hat eine andere Frage.`;
     }
+
+    // Überprüfe die Antworten in Firebase
+    listenForAnswers(currentQuestion.id);
 }
 
 // Ja oder Nein Antwort verarbeiten (abhängig vom Spielmodus)
 function handleAnswer(answer) {
     const currentQuestion = questions[currentQuestionIndex];
 
-    if (gameMode === 1) { // Modus 1: Beide Spieler müssen dieselbe Frage beantworten
+    if (gameMode === 1) {  // Modus 1: Beide Spieler müssen dieselbe Frage beantworten
         if (currentPlayer === 1) {
             player1Responses[currentQuestion.id] = answer;
+            saveAnswerToFirebase(1, currentQuestion.id, answer);
             currentPlayer = 2;
             document.getElementById('info').textContent = 'Spieler 2 ist dran...';
         } else {
             player2Responses[currentQuestion.id] = answer;
+            saveAnswerToFirebase(2, currentQuestion.id, answer);
             currentPlayer = 1;
             currentQuestionIndex++;
-            
-            // Beide Spieler haben geantwortet - prüfen ob es ein Match gibt
-            if (player1Responses[currentQuestion.id] === 'yes' && player2Responses[currentQuestion.id] === 'yes') {
-                matchedCards.push(currentQuestion);
-            } else {
-                discardedCards.push(currentQuestion);
-            }
+
+            // Überprüfen, ob beide geantwortet haben
+            listenForAnswers(currentQuestion.id);
         }
-    } else if (gameMode === 2) { // Modus 2: Beide Spieler spielen unabhängig voneinander
+    } else if (gameMode === 2) {  // Modus 2: Beide Spieler spielen unabhängig voneinander
         if (currentPlayer === 1) {
             player1Responses[currentQuestion.id] = answer;
+            saveAnswerToFirebase(1, currentQuestion.id, answer);
             currentPlayer = 2;
         } else {
             player2Responses[currentQuestion.id] = answer;
+            saveAnswerToFirebase(2, currentQuestion.id, answer);
             currentPlayer = 1;
         }
-        
-        // Wenn beide "Ja" geantwortet haben, verschiebe Karte vom Ablagestapel zum Match-Stapel
-        if (player1Responses[currentQuestion.id] === 'yes' && player2Responses[currentQuestion.id] === 'yes') {
-            const index = discardedCards.findIndex(card => card.id === currentQuestion.id);
-            if (index !== -1) {
-                discardedCards.splice(index, 1); // Entferne aus dem Ablagestapel
-            }
-            matchedCards.push(currentQuestion); // Füge in den Match-Stapel
-        } else if (!player1Responses[currentQuestion.id] || !player2Responses[currentQuestion.id]) {
-            discardedCards.push(currentQuestion); // Noch nicht beide geantwortet
-        }
+
+        // Beide Antworten prüfen und bei "Ja" in den Match-Stapel verschieben
+        listenForAnswers(currentQuestion.id);
         currentQuestionIndex++;
     }
-    
+
     saveGameState();
     displayNextQuestion();
 }
