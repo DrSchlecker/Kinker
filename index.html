@@ -13,7 +13,6 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            flex-direction: column;
         }
 
         .card {
@@ -71,31 +70,26 @@
         <div id="match-stack"></div>
     </div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 
-<script>
-  // Firebase-Konfiguration
-  const firebaseConfig = {
-      apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
-      authDomain: "kinker-2024.firebaseapp.com",
-      databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "kinker-2024",
-      storageBucket: "kinker-2024.appspot.com",
-      messagingSenderId: "986360648193",
-      appId: "1:986360648193:web:065d171dc2c5354d7ee600"
-  };
+    <script>
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "dein-api-key",
+            authDomain: "deine-auth-domain",
+            databaseURL: "deine-datenbank-url",
+            projectId: "dein-projekt-id",
+            storageBucket: "dein-speicher-bucket",
+            messagingSenderId: "deine-messaging-sender-id",
+            appId: "deine-app-id"
+        };
 
-  // Firebase initialisieren
-  firebase.initializeApp(firebaseConfig);
+        // Firebase initialisieren
+        firebase.initializeApp(firebaseConfig);
+    </script>
 
-  // Debug-Ausgabe zur Überprüfung der Initialisierung
-  console.log("Firebase initialized: ", firebase.app().name);  // Sollte 'DEFAULT' ausgeben
-</script>
-
-
-    <!-- Dein eigenes Script -->
     <script src="script.js"></script>
 </body>
 </html>
