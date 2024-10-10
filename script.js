@@ -181,12 +181,24 @@ document.addEventListener("DOMContentLoaded", function() {
         displayNextQuestion();
     }
 
-    // Vollständiger Reset (inklusive Match-Stapel)
-    function fullReset() {
-        matchedCards = [];
-        resetGame();  // Das Deck zurücksetzen
-        updateMatchStack();  // Match-Stapel leeren
-    }
+  // Vollständiger Reset (inklusive Match-Stapel und Antworten)
+function fullReset() {
+    matchedCards = [];
+    player1Responses = {};  // Antworten von Spieler 1 zurücksetzen
+    player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
+    localStorage.removeItem('player1Responses');  // Entfernt gespeicherte Antworten von Spieler 1
+    localStorage.removeItem('player2Responses');  // Entfernt gespeicherte Antworten von Spieler 2
+    localStorage.removeItem('discardedCards');    // Entfernt den Ablagestapel
+    localStorage.removeItem('matchedCards');      // Entfernt den Match-Stapel
+
+    // Firebase-Einträge zurücksetzen
+    firebase.database().ref('responses/player1').remove();  // Entfernt die Antworten von Spieler 1 aus Firebase
+    firebase.database().ref('responses/player2').remove();  // Entfernt die Antworten von Spieler 2 aus Firebase
+
+    resetGame();  // Das Deck zurücksetzen
+    updateMatchStack();  // Match-Stapel leeren
+}
+
 
     // Event Listeners für die Buttons
     document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
