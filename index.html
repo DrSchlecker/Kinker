@@ -75,6 +75,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 
+    <!-- Überprüfen, ob Firebase geladen wurde -->
+<script>
+  console.log('Firebase App:', typeof firebase !== 'undefined' ? 'Firebase geladen' : 'Firebase nicht geladen');
+</script>
+    
     <script>
       // Firebase-Konfiguration
       const firebaseConfig = {
