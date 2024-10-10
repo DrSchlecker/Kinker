@@ -45,6 +45,53 @@
         <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
     </div>
 
+    <!-- Firebase SDKs einbinden -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
+            authDomain: "kinker-2024.firebaseapp.com",
+            projectId: "kinker-2024",
+            storageBucket: "kinker-2024.appspot.com",
+            messagingSenderId: "986360648193",
+            appId: "1:986360648193:web:065d171dc2c5354d7ee600"
+        };
+
+        // Firebase initialisieren
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Firebase Funktionen, um Daten zu schreiben
+        function writeData(player, answer) {
+            set(ref(database, 'answers/' + player), {
+                answer: answer
+            });
+        }
+
+        // Firebase Funktionen, um Daten zu lesen und Änderungen zu überwachen
+        function readData() {
+            const dbRef = ref(database);
+            onValue(child(dbRef, `answers`), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log("Aktuelle Antworten: ", data);
+                    // Hier kannst du mit den Daten arbeiten, z.B. die Antworten von beiden Spielern vergleichen
+                } else {
+                    console.log("Keine Daten verfügbar.");
+                }
+            });
+        }
+
+        // Firebase-Funktionen aufrufen
+        readData(); // Lies die Daten bei Seitenaufruf
+    </script>
+
+    <!-- Dein eigenes Script einbinden -->
     <script src="script.js"></script>
+
 </body>
 </html>
