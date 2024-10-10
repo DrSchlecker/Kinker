@@ -153,4 +153,58 @@ function handleAnswer(answer) {
             currentPlayer = 2;
         } else {
             player2Responses[currentQuestion.id] = answer;
-            saveAnswer
+            saveAnswerToFirebase(2, currentQuestion.id, answer);
+            currentPlayer = 1;
+        }
+
+        // Beide Antworten prüfen und bei "Ja" in den Match-Stapel verschieben
+        listenForAnswers(currentQuestion.id);
+        currentQuestionIndex++;
+    }
+
+    saveGameState();
+    displayNextQuestion();
+}
+
+// Reset für das Deck (nur nicht gematchte Karten)
+function resetGame() {
+    currentQuestionIndex = 0;
+    player1Responses = {};
+    player2Responses = {};
+    discardedCards = [];
+    shuffle(questions);
+    saveGameState();
+    displayNextQuestion();
+}
+
+// Vollständiger Reset (inklusive Match-Stapel)
+function fullReset() {
+    matchedCards = [];
+    resetGame();  // Das Deck zurücksetzen
+    updateMatchStack();  // Match-Stapel leeren
+}
+
+// Event Listeners für die Buttons
+document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
+document.getElementById('no-button').addEventListener('click', () => handleAnswer('no'));
+document.getElementById('reset-button').addEventListener('click', resetGame);
+document.getElementById('full-reset-button').addEventListener('click', fullReset);  // Für den vollen Reset-Button
+
+// Spielmodus wählen
+document.getElementById('mode1-button').addEventListener('click', () => {
+    gameMode = 1;
+    document.getElementById('card-container').style.display = 'block';
+    document.getElementById('reset-button').style.display = 'inline';
+    shuffle(questions);
+    displayNextQuestion();
+});
+document.getElementById('mode2-button').addEventListener('click', () => {
+    gameMode = 2;
+    document.getElementById('card-container').style.display = 'block';
+    document.getElementById('reset-button').style.display = 'inline';
+    shuffle(questions);
+    displayNextQuestion();
+});
+
+// Spiel initialisieren
+loadGameState();
