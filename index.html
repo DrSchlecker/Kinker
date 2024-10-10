@@ -19,6 +19,7 @@
         .buttons {
             margin-top: 20px;
         }
+
         /* Animation, wenn ein Match gefunden wird */
         @keyframes matchHighlight {
             0% { background-color: white; }
@@ -28,6 +29,20 @@
         .matched {
             animation: matchHighlight 2s ease-in-out;
         }
+
+        /* Match-Animation für die Karte */
+        .matched-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(2); /* Vergrößern */
+            background-color: #4CAF50; /* Grüne Farbe */
+            color: white;
+            padding: 50px;
+            z-index: 9999;
+            transition: all 0.3s ease-in-out;
+        }
+
         #match-stack-container {
             margin-top: 30px;
         }
@@ -55,9 +70,7 @@
         <h2>Spiel-Verlauf</h2>
         <p id="info">Warte auf die Antwort...</p>
         <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
-        <!-- Vollständiger Reset Button -->
         <button id="full-reset-button" style="display:block;">Vollständiger Reset</button>
-
     </div>
 
     <!-- Bereich für Match-Stapel -->
@@ -66,54 +79,8 @@
         <div id="match-stack"></div>
     </div>
 
-
-    <!-- Firebase SDKs als klassische Skripte einbinden -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
-    <script>
-        // Firebase-Konfiguration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
-            authDomain: "kinker-2024.firebaseapp.com",
-            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "kinker-2024",
-            storageBucket: "kinker-2024.appspot.com",
-            messagingSenderId: "986360648193",
-            appId: "1:986360648193:web:065d171dc2c5354d7ee600"
-        };
-
-        // Firebase initialisieren
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Firebase Funktionen, um Daten zu schreiben
-        function writeData(player, answer) {
-            firebase.database().ref('answers/' + player).set({
-                answer: answer
-            });
-        }
-
-        // Firebase Funktionen, um Daten zu lesen und Änderungen zu überwachen
-        function readData() {
-            const dbRef = firebase.database().ref();
-            firebase.database().ref('answers').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    console.log("Aktuelle Antworten: ", data);
-                    // Hier kannst du mit den Daten arbeiten, z.B. die Antworten von beiden Spielern vergleichen
-                } else {
-                    console.log("Keine Daten verfügbar.");
-                }
-            });
-        }
-
-        // Firebase-Funktionen aufrufen
-        readData(); // Lies die Daten bei Seitenaufruf
-    </script>
-
-    <!-- Dein JavaScript -->
+    <!-- Firebase SDK und dein JS-Code -->
     <script src="script.js"></script>
-
 </body>
 </html>
+
