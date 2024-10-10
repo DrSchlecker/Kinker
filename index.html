@@ -19,6 +19,18 @@
         .buttons {
             margin-top: 20px;
         }
+        /* Animation, wenn ein Match gefunden wird */
+        @keyframes matchHighlight {
+            0% { background-color: white; }
+            50% { background-color: yellow; }
+            100% { background-color: white; }
+        }
+        .matched {
+            animation: matchHighlight 2s ease-in-out;
+        }
+        #match-stack-container {
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -44,6 +56,16 @@
         <p id="info">Warte auf die Antwort...</p>
         <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
     </div>
+
+    <!-- Bereich für Match-Stapel -->
+    <div id="match-stack-container">
+        <h2>Match-Stapel</h2>
+        <div id="match-stack"></div>
+    </div>
+
+    <!-- Dein JavaScript -->
+    <script src="script.js"></script>
+    <script type="module">
 
     <!-- Firebase SDKs einbinden -->
     <script type="module">
@@ -90,9 +112,6 @@
         // Firebase-Funktionen aufrufen
         readData(); // Lies die Daten bei Seitenaufruf
     </script>
-
-    <!-- Dein eigenes Script einbinden -->
-    <script src="script.js"></script>
 
 </body>
 </html>
