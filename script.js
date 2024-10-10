@@ -60,33 +60,36 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
-    function listenForAnswers(questionId) {
-        firebase.database().ref('responses/player1/' + questionId).on('value', (snapshot) => {
-            const player1Answer = snapshot.val() ? snapshot.val().answer : null;
-            firebase.database().ref('responses/player2/' + questionId).on('value', (snapshot) => {
-                const player2Answer = snapshot.val() ? snapshot.val().answer : null;
-                checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
-            });
+// Funktion, um Antworten aus Firebase zu lesen und Matches zu überprüfen
+function listenForAnswers(questionId) {
+    // Überprüfe Spieler 1's Antwort einmalig
+    firebase.database().ref('responses/player1/' + questionId).once('value', (snapshot) => {
+        const player1Answer = snapshot.val() ? snapshot.val().answer : null;
+        
+        // Überprüfe Spieler 2's Antwort einmalig
+        firebase.database().ref('responses/player2/' + questionId).once('value', (snapshot) => {
+            const player2Answer = snapshot.val() ? snapshot.val().answer : null;
+            checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
         });
-    }
+    });
+}
+
 
 // Match überprüfen und visuell anzeigen
 function checkMatch(player1Answer, player2Answer, question) {
     // Überprüfen, ob die Frage bereits gematcht wurde
     const alreadyMatched = matchedCards.some(match => match.id === question.id);
 
+    // Nur einmal als Match hinzufügen, wenn noch nicht gematched
     if (player1Answer === 'yes' && player2Answer === 'yes' && !alreadyMatched) {
         matchedCards.push(question);  // Match nur speichern, wenn noch nicht gematched
         displayMatch(question);  // Match-Animation anzeigen
         filterOutMatchedCards();  // Entferne gematchte Karten aus dem Deck
+        saveGameState();  // Zustand speichern
     } else if (!alreadyMatched) {
-        discardedCards.push(question);
+        discardedCards.push(question);  // Karte zur Ablage hinzufügen, wenn kein Match
     }
-    saveGameState();
 }
-
-
 
     // Match-Animation und Anzeige
     function displayMatch(question) {
