@@ -212,3 +212,4 @@ document.getElementById('mode2-button').addEventListener('click', () => {
 
 // Spiel initialisieren
 loadGameState();
+});
