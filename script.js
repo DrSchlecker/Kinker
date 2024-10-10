@@ -1,18 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Firebase initialisieren
-    const firebaseConfig = {
-        apiKey: "dein-api-key",
-        authDomain: "deine-auth-domain",
-        databaseURL: "deine-datenbank-url",
-        projectId: "dein-projekt-id",
-        storageBucket: "dein-speicher-bucket",
-        messagingSenderId: "deine-messaging-sender-id",
-        appId: "deine-app-id"
-    };
 
-    // Firebase initialisieren und prüfen, ob es geladen wurde
-    firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized:", firebase.app().name);  // Sollte 'DEFAULT' ausgeben, wenn Firebase korrekt geladen wurde
 
     document.getElementById('full-reset-button').addEventListener('click', fullReset);
 
