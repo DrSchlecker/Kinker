@@ -63,11 +63,9 @@
         <div id="match-stack"></div>
     </div>
 
-
-  <!-- Firebase SDKs als klassische Skripte einbinden -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
+    <!-- Firebase SDKs als klassische Skripte einbinden -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <script>
         // Firebase-Konfiguration
@@ -99,6 +97,7 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     console.log("Aktuelle Antworten: ", data);
+                    // Hier kannst du mit den Daten arbeiten, z.B. die Antworten von beiden Spielern vergleichen
                 } else {
                     console.log("Keine Daten verfügbar.");
                 }
