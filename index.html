@@ -5,44 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fragen-Spiel</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        .card {
-            border: 1px solid #000;
-            padding: 20px;
-            margin: 20px;
-            display: inline-block;
-            transition: transform 0.5s, background-color 0.5s;
-        }
-        .buttons {
-            margin-top: 20px;
-        }
-        /* Animation für Match */
-        .matched {
-            transform: scale(1.5);
-            background-color: yellow;
-        }
-        #match-stack-container {
-            margin-top: 30px;
-        }
-        #full-reset-button {
-            margin-top: 20px;
-        }
+        /* CSS-Styles hier */
     </style>
 </head>
 <body>
-
     <h1>Fragen-Spiel</h1>
 
+    <!-- Spielmodus Buttons -->
     <div>
         <h3>Wähle einen Spielmodus</h3>
         <button id="mode1-button">Modus 1: Gleiche Fragen für beide Spieler</button>
         <button id="mode2-button">Modus 2: Unterschiedliche Fragen für beide Spieler</button>
     </div>
 
+    <!-- Kartenspiel Container -->
     <div id="card-container" style="display:none;">
         <div class="card" id="question-card">Hier wird die Frage angezeigt</div>
         <div class="buttons">
@@ -55,18 +31,36 @@
         <h2>Spiel-Verlauf</h2>
         <p id="info">Warte auf die Antwort...</p>
         <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
-        <!-- Vollständiger Reset Button -->
         <button id="full-reset-button" style="display:block;">Vollständiger Reset</button>
     </div>
 
-    <!-- Bereich für Match-Stapel -->
+    <!-- Match-Stapel -->
     <div id="match-stack-container">
         <h2>Match-Stapel</h2>
         <div id="match-stack"></div>
     </div>
 
+    <!-- Firebase einbinden -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
+
+    <script>
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
+            authDomain: "kinker-2024.firebaseapp.com",
+            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "kinker-2024",
+            storageBucket: "kinker-2024.appspot.com",
+            messagingSenderId: "986360648193",
+            appId: "1:986360648193:web:065d171dc2c5354d7ee600"
+        };
+
+        // Firebase initialisieren
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
     <!-- Dein JavaScript -->
     <script src="script.js"></script>
-
 </body>
 </html>
