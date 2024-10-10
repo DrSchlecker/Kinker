@@ -91,21 +91,27 @@ function checkMatch(player1Answer, player2Answer, question) {
     }
 }
 
-    // Match-Animation und Anzeige
-    function displayMatch(question) {
-        const questionCard = document.getElementById('question-card');
-        questionCard.classList.add('matched');  // Match-Animation starten
+// Match-Animation und Anzeige
+function displayMatch(question) {
+    const questionCard = document.getElementById('question-card');
+    
+    // Inhalt der Karte ändern und Animation starten
+    questionCard.innerHTML = `<h3>${question.title}</h3><p>${question.body}</p>`;
+    questionCard.classList.add('matched-animation');  // Match-Animation starten
 
-        document.getElementById('info').textContent = `Match! Beide Spieler haben Ja gesagt zu: "${question.title}"`;
-
-        // Nach 2 Sekunden die Animation entfernen
-        setTimeout(() => {
-            questionCard.classList.remove('matched');
-        }, 2000);
-
-        // Match-Stapel aktualisieren
+    // Nach 4 Sekunden die Animation entfernen und zur nächsten Frage wechseln
+    setTimeout(() => {
+        questionCard.classList.remove('matched-animation');
+        
+        // Aktualisiere den Match-Stapel
         updateMatchStack();
-    }
+
+        // Zeige die nächste Frage an
+        displayNextQuestion();
+        
+    }, 4000);  // 4 Sekunden warten
+}
+
 
     // Match-Stapel anzeigen (nur Überschrift)
     function updateMatchStack() {
