@@ -184,16 +184,27 @@ function displayMatch(question) {
         displayNextQuestion();
     }
 
-    // Reset für das Deck (nur nicht gematchte Karten)
-    function resetGame() {
-        currentQuestionIndex = 0;
-        player1Responses = {};
-        player2Responses = {};
-        discardedCards = [];
-        shuffle(questions);
-        saveGameState();
-        displayNextQuestion();
-    }
+ // Reset für das Deck (nur nicht gematchte Karten und zurückgesetzte Antworten)
+function resetGame() {
+    currentQuestionIndex = 0;
+    
+    // Alle Antworten für Karten im Ablagestapel löschen
+    discardedCards.forEach(card => {
+        delete player1Responses[card.id];
+        delete player2Responses[card.id];
+    });
+
+    // Ablagestapel leeren
+    discardedCards = [];
+
+    // Antworten im Local Storage ebenfalls entfernen
+    saveGameState();
+
+    // Fragen neu mischen und neu starten
+    shuffle(questions);
+    displayNextQuestion();
+}
+
 
 // Vollständiger Reset (inklusive Match-Stapel und Antworten)
 function fullReset() {
