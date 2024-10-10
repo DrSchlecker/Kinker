@@ -87,6 +87,7 @@ function checkMatch(player1Answer, player2Answer, question) {
 }
 
 
+
     // Match-Animation und Anzeige
     function displayMatch(question) {
         const questionCard = document.getElementById('question-card');
@@ -185,23 +186,30 @@ function checkMatch(player1Answer, player2Answer, question) {
         displayNextQuestion();
     }
 
-  // Vollständiger Reset (inklusive Match-Stapel und Antworten)
+// Vollständiger Reset (inklusive Match-Stapel und Antworten)
 function fullReset() {
     matchedCards = [];
     player1Responses = {};  // Antworten von Spieler 1 zurücksetzen
     player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
-    localStorage.removeItem('player1Responses');  // Entfernt gespeicherte Antworten von Spieler 1
-    localStorage.removeItem('player2Responses');  // Entfernt gespeicherte Antworten von Spieler 2
-    localStorage.removeItem('discardedCards');    // Entfernt den Ablagestapel
-    localStorage.removeItem('matchedCards');      // Entfernt den Match-Stapel
+    discardedCards = [];    // Ablagestapel zurücksetzen
+    currentQuestionIndex = 0; // Index zurücksetzen
+    shuffle(questions);      // Fragen neu mischen
 
-    // Firebase-Einträge zurücksetzen
-    firebase.database().ref('responses/player1').remove();  // Entfernt die Antworten von Spieler 1 aus Firebase
-    firebase.database().ref('responses/player2').remove();  // Entfernt die Antworten von Spieler 2 aus Firebase
+    // Local Storage löschen
+    localStorage.removeItem('player1Responses');
+    localStorage.removeItem('player2Responses');
+    localStorage.removeItem('discardedCards');
+    localStorage.removeItem('matchedCards');
 
-    resetGame();  // Das Deck zurücksetzen
-    updateMatchStack();  // Match-Stapel leeren
+    // Firebase-Daten löschen (beide Spieler)
+    firebase.database().ref('responses/player1').remove();
+    firebase.database().ref('responses/player2').remove();
+
+    // Match-Stapel leeren
+    updateMatchStack();  // Aktualisiert die Match-Stapel-Anzeige
+    displayNextQuestion();  // Zeigt die erste Frage nach dem Reset an
 }
+
 
 
     // Event Listeners für die Buttons
