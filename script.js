@@ -96,6 +96,8 @@ document.addEventListener("DOMContentLoaded", function() {
         sessionCode = generateSessionCode();
         document.getElementById('session-code').textContent = sessionCode;
         document.getElementById('session-code-display').style.display = 'block';
+        document.getElementById('join-game-button').style.display = 'none'; // Hide join button for Player 1
+        document.getElementById('join-game-code').style.display = 'none'; // Hide code input for Player 1
         firebase.database().ref(`sessions/${sessionCode}`).set({
             player1: player1,
             status: 'waiting'
@@ -112,6 +114,9 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        // Show the spinner while waiting to join
+        showLoadingSpinner(true);
+
         // Check if the session exists in Firebase
         firebase.database().ref(`sessions/${enteredCode}`).once('value', (snapshot) => {
             if (snapshot.exists()) {
@@ -125,17 +130,22 @@ document.addEventListener("DOMContentLoaded", function() {
                         alert("Successfully joined the game!");
                         sessionCode = enteredCode; // Save the session code for Player 2
                         startGame(); // Start the game for Player 2
+                        showLoadingSpinner(false); // Hide the spinner once the game starts
                     }).catch(error => {
                         console.error("Error updating session with Player 2:", error);
+                        showLoadingSpinner(false); // Hide spinner on error
                     });
                 } else {
                     alert("This session is already in progress.");
+                    showLoadingSpinner(false); // Hide spinner if session already in progress
                 }
             } else {
                 alert("Session code not found. Please check the code and try again.");
+                showLoadingSpinner(false); // Hide spinner if session code not found
             }
         }).catch(error => {
             console.error("Error joining session:", error);
+            showLoadingSpinner(false); // Hide spinner on error
         });
     }
 
@@ -203,6 +213,12 @@ document.addEventListener("DOMContentLoaded", function() {
     // Mode 2: Join game with a session code
     document.getElementById('join-game-button').addEventListener('click', () => {
         joinGameWithCode();
+    });
+
+    // Show the session code input and join button for Player 2 when Mode 2 is selected
+    document.getElementById('mode2-button').addEventListener('click', () => {
+        document.getElementById('join-game-button').style.display = 'block';
+        document.getElementById('join-game-code').style.display = 'block';
     });
 
     loadGameState();
