@@ -47,15 +47,25 @@
         <input type="text" id="nickname-input" placeholder="Nickname">
         <button id="save-nickname-button">Save Nickname</button>
     </div>
-
-    <div>
+    
+     <div>
         <h3>Select a game mode</h3>
         <button id="mode1-button">Mode 1: Same questions for both players</button>
         <button id="mode2-button">Mode 2: Different questions for both players</button>
+        
+        <!-- Session code display for Player 1 -->
         <p id="session-code-display" style="display:none;">Session Code: <span id="session-code"></span></p>
-        <button id="join-game-button" style="display:none;">Join Game with Code</button>
+        
+        <!-- Input and button for Player 2 to join a game using the session code -->
         <input type="text" id="join-game-code" placeholder="Enter Session Code" style="display:none;">
+        <button id="join-game-button" style="display:none;">Join Game with Code</button>
     </div>
+    
+    <!-- Loading spinner for waiting -->
+    <div id="loading-spinner" style="display:none;">
+        <img src="spinner.gif" alt="Loading...">
+    </div>
+
 
     <div id="card-container" style="display:none;">
         <div class="card" id="question-card">The question will be displayed here</div>
