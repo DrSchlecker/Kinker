@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to save a response to Firebase
     function saveResponseToFirebase(player, questionId, answer) {
-        firebase.database().ref(`responses/${getCombinedNickname(player, currentPlayer)}/${questionId}`).set({
+        firebase.database().ref(`responses/${getCombinedNickname(player1, player2)}/${questionId}`).set({
             answer: answer
         }).catch(error => {
             console.error("Error saving response:", error);
@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let gameMode = 1; // Default is Mode 1 (same questions for both players)
     let player1 = localStorage.getItem('playerNickname') || '';
     let player2 = ''; // To be set when the second player is identified
+    let sessionCode = ''; // To store the session code if Player 2 is joining
 
     function loadGameState() {
         const savedPlayer1 = localStorage.getItem('player1Responses');
@@ -70,11 +71,10 @@ document.addEventListener("DOMContentLoaded", function() {
         filterOutMatchedCards();
     }
 
-   function filterOutMatchedCards() {
-    const filteredQuestions = questions.filter(q => !matchedCards.some(m => m.id === q.id));
-    return filteredQuestions;
-}
-
+    function filterOutMatchedCards() {
+        const filteredQuestions = questions.filter(q => !matchedCards.some(m => m.id === q.id));
+        return filteredQuestions;
+    }
 
     function saveGameState() {
         localStorage.setItem('player1Responses', JSON.stringify(player1Responses));
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Generate and display a session code for Mode 2
     function createSessionCode() {
-        const sessionCode = generateSessionCode();
+        sessionCode = generateSessionCode();
         document.getElementById('session-code').textContent = sessionCode;
         document.getElementById('session-code-display').style.display = 'block';
         firebase.database().ref(`sessions/${sessionCode}`).set({
@@ -104,7 +104,49 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-     const filteredQuestions = filterOutMatchedCards(); // Call the function and get the filtered questions
+    // Join a game session using the session code (Player 2)
+    function joinGameWithCode() {
+        const enteredCode = document.getElementById('join-game-code').value;
+        if (!enteredCode) {
+            alert("Please enter a valid session code.");
+            return;
+        }
+
+        // Check if the session exists in Firebase
+        firebase.database().ref(`sessions/${enteredCode}`).once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const sessionData = snapshot.val();
+                if (sessionData.status === 'waiting') {
+                    // Add Player 2 to the session
+                    firebase.database().ref(`sessions/${enteredCode}`).update({
+                        player2: player2,
+                        status: 'in-progress'
+                    }).then(() => {
+                        alert("Successfully joined the game!");
+                        sessionCode = enteredCode; // Save the session code for Player 2
+                        startGame(); // Start the game for Player 2
+                    }).catch(error => {
+                        console.error("Error updating session with Player 2:", error);
+                    });
+                } else {
+                    alert("This session is already in progress.");
+                }
+            } else {
+                alert("Session code not found. Please check the code and try again.");
+            }
+        }).catch(error => {
+            console.error("Error joining session:", error);
+        });
+    }
+
+    // Function to start the game (for both Player 1 and Player 2)
+    function startGame() {
+        document.getElementById('card-container').style.display = 'block';
+        document.getElementById('reset-button').style.display = 'inline';
+        displayNextQuestion();
+    }
+
+    const filteredQuestions = filterOutMatchedCards(); // Call the function and get the filtered questions
     function displayNextQuestion() {
         if (currentQuestionIndex >= filteredQuestions.length) {
             document.getElementById('question-card').textContent = 'No more questions available.';
@@ -113,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const currentQuestion = filteredQuestions[currentQuestionIndex];
         document.getElementById('question-card').innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
     }
-
 
     function handleAnswer(answer) {
         const currentQuestion = filteredQuestions[currentQuestionIndex];
@@ -146,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (nickname) {
             localStorage.setItem('playerNickname', nickname);
             player1 = nickname;
+            player2 = nickname; // Assuming Player 2 is on the same device, update this if needed
             alert('Nickname saved!');
         } else {
             alert('Please enter a valid nickname.');
@@ -156,6 +198,11 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('mode2-button').addEventListener('click', () => {
         gameMode = 2;
         createSessionCode();
+    });
+
+    // Mode 2: Join game with a session code
+    document.getElementById('join-game-button').addEventListener('click', () => {
+        joinGameWithCode();
     });
 
     loadGameState();
