@@ -70,9 +70,11 @@ document.addEventListener("DOMContentLoaded", function() {
         filterOutMatchedCards();
     }
 
-    function filterOutMatchedCards() {
-        questions = questions.filter(q => !matchedCards.some(m => m.id === q.id));
-    }
+   function filterOutMatchedCards() {
+    const filteredQuestions = questions.filter(q => !matchedCards.some(m => m.id === q.id));
+    return filteredQuestions;
+}
+
 
     function saveGameState() {
         localStorage.setItem('player1Responses', JSON.stringify(player1Responses));
@@ -102,18 +104,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+     const filteredQuestions = filterOutMatchedCards(); // Call the function and get the filtered questions
     function displayNextQuestion() {
-        if (currentQuestionIndex >= questions.length) {
+        if (currentQuestionIndex >= filteredQuestions.length) {
             document.getElementById('question-card').textContent = 'No more questions available.';
             return;
         }
-
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = filteredQuestions[currentQuestionIndex];
         document.getElementById('question-card').innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
     }
 
+
     function handleAnswer(answer) {
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = filteredQuestions[currentQuestionIndex];
 
         if (gameMode === 1) { // Mode 1: Same question for both players
             if (currentPlayer === 1) {
