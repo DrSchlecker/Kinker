@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Entferne gematchte Karten aus dem Fragen-Deck
     function filterOutMatchedCards() {
-        questions = questions.filter(question => !matchedCards.some(match => match.id === question.id));
+        let filteredQuestions = questions.filter(question => !matchedCards.some(match => match.id === question.id));
     }
 
     // Spielstatus speichern
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const player1Answer = snapshot.val() ? snapshot.val().answer : null;
             firebase.database().ref('responses/player2/' + questionId).on('value', (snapshot) => {
                 const player2Answer = snapshot.val() ? snapshot.val().answer : null;
-                checkMatch(player1Answer, player2Answer, questions.find(q => q.id === questionId));
+                checkMatch(player1Answer, player2Answer, filteredQuestions.find(q => q.id === questionId));
             });
         });
     }
@@ -122,12 +122,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Nächste Frage anzeigen (abhängig vom Spielmodus)
     function displayNextQuestion() {
-        if (currentQuestionIndex >= questions.length) {
+        if (currentQuestionIndex >= filteredQuestions.length) {
             document.getElementById('question-card').textContent = 'Keine weiteren Fragen verfügbar.';
             return;
         }
         
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = filteredQuestions[currentQuestionIndex];
         document.getElementById('question-card').innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
 
         if (gameMode === 1) {
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Ja oder Nein Antwort verarbeiten (abhängig vom Spielmodus)
     function handleAnswer(answer) {
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = filteredQuestions[currentQuestionIndex];
 
         if (gameMode === 1) {  // Modus 1: Beide Spieler müssen dieselbe Frage beantworten
             if (currentPlayer === 1) {
@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function() {
         player1Responses = {};  // Spieler 1 Antworten zurücksetzen
         player2Responses = {};  // Spieler 2 Antworten zurücksetzen
         discardedCards = [];    // Ablagestapel leeren
-        shuffle(questions);     // Karten neu mischen
+        shuffle(filteredQuestions);     // Karten neu mischen
         saveGameState();        // Neuen Zustand speichern
         displayNextQuestion();  // Nächste Frage anzeigen
     }
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
         player2Responses = {};  // Antworten von Spieler 2 zurücksetzen
         discardedCards = [];    // Ablagestapel zurücksetzen
         currentQuestionIndex = 0; // Index zurücksetzen
-        shuffle(questions);      // Fragen neu mischen
+        shuffle(filteredQuestions);      // Fragen neu mischen
 
         // Local Storage löschen
         localStorage.removeItem('player1Responses');
@@ -223,17 +223,16 @@ document.addEventListener("DOMContentLoaded", function() {
         gameMode = 1;
         document.getElementById('card-container').style.display = 'block';
         document.getElementById('reset-button').style.display = 'inline';
-        shuffle(questions);
+        shuffle(filteredQuestions);
         displayNextQuestion();
     });
     document.getElementById('mode2-button').addEventListener('click', () => {
         gameMode = 2;
         document.getElementById('card-container').style.display = 'block';
         document.getElementById('reset-button').style.display = 'inline';
-        shuffle(questions);
+        shuffle(filteredQuestions);
         displayNextQuestion();
     });
 
     // Spiel initialisieren
     loadGameState();
-});
