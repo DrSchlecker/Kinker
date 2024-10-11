@@ -48,13 +48,19 @@
         <button id="save-mode1-names">Save Names</button>
     </div>
 
-    <!-- Mode 2: Ask for one player name and session code -->
+    <!-- Mode 2: Ask for Player 1's name to create a session -->
     <div id="mode2-player-name" class="hidden">
-        <h3>Enter Your Name:</h3>
-        <input type="text" id="player1-mode2-name" placeholder="Player Name"><br><br>
-        <label for="session-code">Enter Session Code or Create New:</label>
-        <input type="text" id="session-code-input" placeholder="Session Code"><br><br>
+        <h3>Enter Your Name and the Name of the Person You Want to Play With:</h3>
+        <input type="text" id="player1-mode2-name" placeholder="Your Name"><br><br>
+        <input type="text" id="player2-mode2-name" placeholder="Player 2's Name"><br><br>
         <button id="create-session-button">Create Session</button>
+    </div>
+
+    <!-- Mode 2: Player 2 joins the session by entering both names -->
+    <div id="join-session-form" class="hidden">
+        <h3>Enter Your Name and Player 2's Name to Join the Session:</h3>
+        <input type="text" id="player1-join-name" placeholder="Your Name"><br><br>
+        <input type="text" id="player2-join-name" placeholder="Player 2's Name"><br><br>
         <button id="join-session-button">Join Session</button>
     </div>
 
