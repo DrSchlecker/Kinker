@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-
     document.getElementById('full-reset-button').addEventListener('click', fullReset);
 
     const questions = [
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let matchedCards = JSON.parse(localStorage.getItem('matchedCards')) || [];
     let currentPlayer = 1;
     let gameMode = 1; // Standardmäßig Modus 1 (gleiche Fragen)
+    let filteredQuestions = [...questions];  // Declare globally
 
     // Prüfen ob Daten im Local Storage vorhanden sind, wenn ja, laden
     function loadGameState() {
@@ -38,8 +38,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Entferne gematchte Karten aus dem Fragen-Deck
     function filterOutMatchedCards() {
-        let filteredQuestions = questions.filter(question => !matchedCards.some(match => match.id === question.id));
+        filteredQuestions = questions.filter(question => !matchedCards.some(match => match.id === question.id));  // Reassign globally
     }
+
 
     // Spielstatus speichern
     function saveGameState() {
