@@ -105,13 +105,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Check for matches
     function checkForMatch(questionId) {
+        // Ensure this question hasn't already been matched
+    if (!matchedCards.some(q => q.id === questionId)) {
         if (player1Responses[questionId] === 'yes' && player2Responses[questionId] === 'yes') {
             const matchedQuestion = questions.find(q => q.id === questionId);
             matchedCards.push(matchedQuestion);
             displayMatch(matchedQuestion); // Show match animation
             saveGameProgressToFirebase();  // Save the match to Firebase
+        } else {
+            console.log("This question has already been matched.");
         }
-    }
+    }}
 
     // Display match animation and update the match stack
     function displayMatch(question) {
@@ -312,14 +316,17 @@ document.addEventListener("DOMContentLoaded", function() {
     function displayNextQuestionForMode2() {
         const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
         questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
-        playerInfo.innerHTML = `It's your turn to answer this question.`;
+        playerInfo.innerHTML = `It's your turn to answer this question, ${player1}.`;
     }
 
     // Mode 2: Handle Yes/No Answer without switching players
     function handleAnswerMode2(answer) {
         const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
 
+          // Save the current player's response
+    if (!player1Responses[randomQuestion.id]) {
         player1Responses[randomQuestion.id] = answer;
+    }
         checkForMatch(randomQuestion.id);  // Check if it's a match
         saveGameProgressToFirebase(); // Save progress
 
