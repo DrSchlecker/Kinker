@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Function to start or resume the game based on player names (Mode 1)
-    function startOrResumeGame() {
+    function startOrResumeGameMode1() {
         player1 = document.getElementById('player1-name').value;
         player2 = document.getElementById('player2-name').value;
 
@@ -193,10 +193,10 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Handle Yes/No Answer for Player 1 and Player 2 (Mode 1)
-    document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
-    document.getElementById('no-button').addEventListener('click', () => handleAnswer('no'));
+    document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode1('yes'));
+    document.getElementById('no-button').addEventListener('click', () => handleAnswerMode1('no'));
 
-    function handleAnswer(answer) {
+    function handleAnswerMode1(answer) {
         const currentQuestionIndex = currentPlayer === 1 ? player1QuestionIndex : player2QuestionIndex;
         const currentQuestion = questions[currentQuestionIndex];
 
@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Starting the game for Mode 1
-    document.getElementById('save-mode1-names').addEventListener('click', startOrResumeGame);
+    document.getElementById('save-mode1-names').addEventListener('click', startOrResumeGameMode1);
 
     // **Back to Landing Page and Reset Everything**
     backToLandingButton.addEventListener('click', () => {
@@ -245,52 +245,47 @@ document.addEventListener("DOMContentLoaded", function() {
     // Mode 2: Async, players answer independently using nicknames as session key
     document.getElementById('create-session-button').addEventListener('click', () => {
         player1 = document.getElementById('player1-mode2-name').value;
-        sessionKey = player1; // Use player1's name as the session key (temporarily, until player2 joins)
+        player2 = document.getElementById('player2-mode2-name').value;
 
-        if (player1) {
-            hideElement(mode2Name);
-            showElement(gameLayout);
-            showElement(cardContainer);
-
+        if (player1 && player2) {
+            sessionKey = getCombinedNicknameKey(player1, player2); // Generate session key based on both players' names
             firebase.database().ref(`sessions/${sessionKey}`).set({
                 player1: player1,
+                player2: player2,
                 status: 'waiting'
             }).then(() => {
                 console.log(`Session created: ${sessionKey}`);
+                hideElement(mode2Name);
+                showElement(gameLayout);
+                showElement(cardContainer);
+                playerInfo.innerHTML = `Players: ${player1} and waiting for ${player2}...`;
             }).catch((error) => {
                 console.error("Error creating session: ", error);
             });
         } else {
-            alert('Please enter your name to create a valid session.');
+            alert('Please enter both player names.');
         }
     });
 
-    // Join Session in Mode 2 using combined nickname key
+    // Player 2 joins the session by entering both their name and Player 1's name
     document.getElementById('join-session-button').addEventListener('click', () => {
-        player2 = document.getElementById('player1-mode2-name').value;
-        const player2Name = player2; // Store the second player's name
-        const combinedSessionKey = getCombinedNicknameKey(player1, player2); // Combine the two names
+        player1 = document.getElementById('player1-mode2-name').value;
+        player2 = document.getElementById('player2-mode2-name').value;
 
-        if (!combinedSessionKey) {
-            alert("Please enter valid player names to join the session.");
-            return;
-        }
-
-        firebase.database().ref(`sessions/${combinedSessionKey}`).once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                const sessionData = snapshot.val();
-                if (sessionData.status === 'waiting' || sessionData.status === 'in-progress') {
-                    // Check if player2 is a valid participant
-                    const validPlayers = [sessionData.player1, sessionData.player2].filter(Boolean);
-                    if (validPlayers.includes(player2Name)) {
-                        firebase.database().ref(`sessions/${combinedSessionKey}`).update({
-                            player2: player2Name,
+        if (player1 && player2) {
+            sessionKey = getCombinedNicknameKey(player1, player2);
+            firebase.database().ref(`sessions/${sessionKey}`).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    const sessionData = snapshot.val();
+                    if (sessionData.status === 'waiting' || sessionData.status === 'in-progress') {
+                        firebase.database().ref(`sessions/${sessionKey}`).update({
                             status: 'in-progress'
                         }).then(() => {
+                            console.log(`Player 2 (${player2}) joined the session.`);
                             hideElement(mode2Name);
                             showElement(gameLayout);
                             showElement(cardContainer);
-                            playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player2Name}`;
+                            playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player2}`;
 
                             // Load the saved game progress and resume
                             loadGameProgressFromFirebase(() => {
@@ -300,17 +295,17 @@ document.addEventListener("DOMContentLoaded", function() {
                             console.error("Error joining session: ", error);
                         });
                     } else {
-                        alert("Unable to join session. Invalid player name.");
+                        alert("This session is already completed or invalid.");
                     }
                 } else {
-                    alert("This session is already completed or invalid.");
+                    alert("Session code not found.");
                 }
-            } else {
-                alert("Session code not found.");
-            }
-        }).catch((error) => {
-            console.error("Error fetching session: ", error);
-        });
+            }).catch((error) => {
+                console.error("Error fetching session: ", error);
+            });
+        } else {
+            alert("Please enter both player names.");
+        }
     });
 
     // Mode 2: Display random questions without switching turns
