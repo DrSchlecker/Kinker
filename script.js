@@ -2,13 +2,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Firebase Configuration (needed for Mode 2)
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        databaseURL: "YOUR_DATABASE_URL",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
+            authDomain: "kinker-2024.firebaseapp.com",
+            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "kinker-2024",
+            storageBucket: "kinker-2024.appspot.com",
+            messagingSenderId: "986360648193",
+            appId: "1:986360648193:web:065d171dc2c5354d7ee600"
     };
 
     if (!firebase.apps.length) {
