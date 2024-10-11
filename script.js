@@ -321,7 +321,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Mode 2: Handle Yes/No Answer without switching players
     function handleAnswerMode2(answer) {
-        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+
+    // Ensure the randomQuestion is valid
+    if (randomQuestion) {
+        player1Responses[randomQuestion.id] = answer;  // Save the answer
+        checkForMatch(randomQuestion.id);  // Check for matches
+        saveGameProgressToFirebase();  // Save progress
+        displayNextQuestionForMode2();  // Show next question
+    } else {
+        console.error("Failed to load a valid question.");
+    }
+}
+
 
           // Save the current player's response
     if (!player1Responses[randomQuestion.id]) {
