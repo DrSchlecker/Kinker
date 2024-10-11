@@ -322,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Mode 2: Handle Yes/No Answer without switching players
     function handleAnswerMode2(answer) {
     const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
-
+    }
     // Ensure the randomQuestion is valid
     if (randomQuestion) {
         player1Responses[randomQuestion.id] = answer;  // Save the answer
