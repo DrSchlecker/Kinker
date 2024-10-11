@@ -1,5 +1,26 @@
 document.addEventListener("DOMContentLoaded", function() {
 
+    document.addEventListener("DOMContentLoaded", function() {
+    // Get the landing page buttons
+    const mode1Button = document.getElementById('mode1-button');
+    const mode2Button = document.getElementById('mode2-button');
+
+    // Add event listener for Mode 1 button
+    mode1Button.addEventListener('click', function() {
+        // Hide the landing page and show the player name input for Mode 1
+        hideElement(landingPage);
+        showElement(mode1Names);  // Show Mode 1 input for player names
+    });
+
+    // Add event listener for Mode 2 button
+    mode2Button.addEventListener('click', function() {
+        // Hide the landing page and show the player name input for Mode 2
+        hideElement(landingPage);
+        showElement(mode2Name);  // Show Mode 2 input for player names
+    });
+});
+
+
     // Firebase Configuration (provided by you)
     const firebaseConfig = {
         apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
