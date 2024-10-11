@@ -242,31 +242,82 @@ document.addEventListener("DOMContentLoaded", function() {
         showElement(landingPage);
     });
 
-    // Mode 2: Async, players answer independently
-    document.getElementById('save-mode2-name').addEventListener('click', () => {
+    // Mode 2: Async, players answer independently using nicknames as session key
+    document.getElementById('create-session-button').addEventListener('click', () => {
         player1 = document.getElementById('player1-mode2-name').value;
+        sessionKey = player1; // Use player1's name as the session key (temporarily, until player2 joins)
 
         if (player1) {
-            sessionKey = player1;  // Player 1's name will serve as the session key in this mode
-            gameMode = 2; // Set to Mode 2
             hideElement(mode2Name);
             showElement(gameLayout);
             showElement(cardContainer);
 
-            // Load game progress for Mode 2
-            loadGameProgressFromFirebase(() => {
-                displayNextQuestionForPlayer1();  // Player 1 starts answering
+            firebase.database().ref(`sessions/${sessionKey}`).set({
+                player1: player1,
+                status: 'waiting'
+            }).then(() => {
+                console.log(`Session created: ${sessionKey}`);
+            }).catch((error) => {
+                console.error("Error creating session: ", error);
             });
         } else {
-            alert('Please enter your name.');
+            alert('Please enter your name to create a valid session.');
         }
+    });
+
+    // Join Session in Mode 2 using combined nickname key
+    document.getElementById('join-session-button').addEventListener('click', () => {
+        player2 = document.getElementById('player1-mode2-name').value;
+        const player2Name = player2; // Store the second player's name
+        const combinedSessionKey = getCombinedNicknameKey(player1, player2); // Combine the two names
+
+        if (!combinedSessionKey) {
+            alert("Please enter valid player names to join the session.");
+            return;
+        }
+
+        firebase.database().ref(`sessions/${combinedSessionKey}`).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const sessionData = snapshot.val();
+                if (sessionData.status === 'waiting' || sessionData.status === 'in-progress') {
+                    // Check if player2 is a valid participant
+                    const validPlayers = [sessionData.player1, sessionData.player2].filter(Boolean);
+                    if (validPlayers.includes(player2Name)) {
+                        firebase.database().ref(`sessions/${combinedSessionKey}`).update({
+                            player2: player2Name,
+                            status: 'in-progress'
+                        }).then(() => {
+                            hideElement(mode2Name);
+                            showElement(gameLayout);
+                            showElement(cardContainer);
+                            playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player2Name}`;
+
+                            // Load the saved game progress and resume
+                            loadGameProgressFromFirebase(() => {
+                                displayNextQuestionForMode2();
+                            });
+                        }).catch((error) => {
+                            console.error("Error joining session: ", error);
+                        });
+                    } else {
+                        alert("Unable to join session. Invalid player name.");
+                    }
+                } else {
+                    alert("This session is already completed or invalid.");
+                }
+            } else {
+                alert("Session code not found.");
+            }
+        }).catch((error) => {
+            console.error("Error fetching session: ", error);
+        });
     });
 
     // Mode 2: Display random questions without switching turns
     function displayNextQuestionForMode2() {
         const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
         questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
-        playerInfo.innerHTML = `It's ${player1}'s turn to answer this question.`;
+        playerInfo.innerHTML = `It's your turn to answer this question.`;
     }
 
     // Mode 2: Handle Yes/No Answer without switching players
