@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function() {
         showElement(landingPage);
     });
 
-    // Mode 2: Async, players answer independently using nicknames as session key
+    // **Mode 2: Player 1 creates session by entering both names**
     document.getElementById('create-session-button').addEventListener('click', () => {
         player1 = document.getElementById('player1-mode2-name').value;
         player2 = document.getElementById('player2-mode2-name').value;
@@ -267,10 +267,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Player 2 joins the session by entering both their name and Player 1's name
+    // **Mode 2: Player 2 joins session by entering both names**
     document.getElementById('join-session-button').addEventListener('click', () => {
-        player1 = document.getElementById('player1-mode2-name').value;
-        player2 = document.getElementById('player2-mode2-name').value;
+        player1 = document.getElementById('player1-join-name').value;
+        player2 = document.getElementById('player2-join-name').value;
 
         if (player1 && player2) {
             sessionKey = getCombinedNicknameKey(player1, player2);
