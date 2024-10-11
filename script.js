@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    // Firebase Configuration (needed for both modes)
+    // Firebase Configuration (provided by you)
     const firebaseConfig = {
-            apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
-            authDomain: "kinker-2024.firebaseapp.com",
-            databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "kinker-2024",
-            storageBucket: "kinker-2024.appspot.com",
-            messagingSenderId: "986360648193",
-            appId: "1:986360648193:web:065d171dc2c5354d7ee600"
+        apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
+        authDomain: "kinker-2024.firebaseapp.com",
+        databaseURL: "https://kinker-2024-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "kinker-2024",
+        storageBucket: "kinker-2024.appspot.com",
+        messagingSenderId: "986360648193",
+        appId: "1:986360648193:web:065d171dc2c5354d7ee600"
     };
 
     if (!firebase.apps.length) {
@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let player2 = '';
     let currentPlayer = 1;  // For Mode 1, alternates between 1 and 2 for turn-based play
     let gameMode = 1; // Default Mode 1
-    let sessionCode = '';
-    let currentQuestionIndex = 0;
+    let player1QuestionIndex = 0;
+    let player2QuestionIndex = 0;
     let player1Responses = {};
     let player2Responses = {};
     let matchedCards = [];
@@ -38,11 +38,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // HTML elements
     const landingPage = document.getElementById('landing-page');
     const mode1Names = document.getElementById('mode1-player-names');
-    const mode2Name = document.getElementById('mode2-player-name');
-    const mode2Session = document.getElementById('mode2-session');
     const gameLayout = document.getElementById('game-layout');
     const cardContainer = document.getElementById('card-container');
-    const sessionCodeDisplay = document.getElementById('session-code-display');
     const playerInfo = document.getElementById('player-info');
     const questionCard = document.getElementById('question-card');
     const backToLandingButton = document.getElementById('back-to-landing');
@@ -64,10 +61,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Save game progress to Firebase (shared for both modes)
-    function saveGameProgressToFirebase(player1, player2) {
+    function saveGameProgressToFirebase() {
         const combinedKey = getCombinedNicknameKey(player1, player2);
         const gameState = {
-            currentQuestionIndex: currentQuestionIndex,
+            player1QuestionIndex: player1QuestionIndex,
+            player2QuestionIndex: player2QuestionIndex,
             player1Responses: player1Responses,
             player2Responses: player2Responses,
             matchedCards: matchedCards
@@ -79,21 +77,23 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Load game progress from Firebase (shared for both modes)
-    function loadGameProgressFromFirebase(player1, player2, callback) {
+    function loadGameProgressFromFirebase(callback) {
         const combinedKey = getCombinedNicknameKey(player1, player2);
 
         firebase.database().ref(`gameProgress/${combinedKey}`).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     const gameState = snapshot.val();
-                    currentQuestionIndex = gameState.currentQuestionIndex;
+                    player1QuestionIndex = gameState.player1QuestionIndex;
+                    player2QuestionIndex = gameState.player2QuestionIndex;
                     player1Responses = gameState.player1Responses || {};
                     player2Responses = gameState.player2Responses || {};
                     matchedCards = gameState.matchedCards || [];
                     updateMatchStack(); // Show matched cards on load
                     console.log(`Loaded progress from Firebase for ${combinedKey}.`);
                 } else {
-                    currentQuestionIndex = 0;
+                    player1QuestionIndex = 0;
+                    player2QuestionIndex = 0;
                     player1Responses = {};
                     player2Responses = {};
                     matchedCards = [];
@@ -104,83 +104,14 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch((error) => console.error("Error loading game progress from Firebase:", error));
     }
 
-    // Event Listener for Mode 1 Button (Offline Mode with Same Questions)
-    document.getElementById('mode1-button').addEventListener('click', () => {
-        hideElement(landingPage);
-        showElement(mode1Names);
-    });
-
-    // Save Player Names for Mode 1 and Start the Game
-    document.getElementById('save-mode1-names').addEventListener('click', () => {
-        player1 = document.getElementById('player1-name').value;
-        player2 = document.getElementById('player2-name').value;
-
-        if (player1 && player2) {
-            hideElement(mode1Names);
-            showElement(gameLayout);
-            showElement(cardContainer);
-            playerInfo.innerHTML = `Players: ${player1} and ${player2}`;
-            gameMode = 1;  // Set game mode to 1 (offline)
-
-            // Load game progress from Firebase and then start the game
-            loadGameProgressFromFirebase(player1, player2, displayNextQuestionForPlayer);
-        } else {
-            alert('Please enter both player names.');
+    // Function to check for a match
+    function checkForMatch(questionId) {
+        if (player1Responses[questionId] === 'yes' && player2Responses[questionId] === 'yes') {
+            const matchedQuestion = questions.find(q => q.id === questionId);
+            matchedCards.push(matchedQuestion);
+            displayMatch(matchedQuestion); // Show match animation
+            saveGameProgressToFirebase();  // Save the match to Firebase
         }
-    });
-
-    // Display the next question for Player 1 or Player 2 (turn-based Mode 1)
-    function displayNextQuestionForPlayer() {
-        if (currentQuestionIndex >= questions.length) {
-            questionCard.innerHTML = 'No more questions available.';
-            return;
-        }
-
-        const currentQuestion = questions[currentQuestionIndex];
-        const currentPlayerName = currentPlayer === 1 ? player1 : player2;
-
-        // Show the current question and indicate whose turn it is
-        questionCard.innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
-        playerInfo.innerHTML = `It's ${currentPlayerName}'s turn to answer.`;
-
-        // Wait for the current player to answer before switching to the other player
-    }
-
-    // Handle Yes/No Answer and Alternate Turns (Offline Mode 1)
-    document.getElementById('yes-button').addEventListener('click', () => {
-        handleAnswer('yes');
-    });
-    
-    document.getElementById('no-button').addEventListener('click', () => {
-        handleAnswer('no');
-    });
-
-    function handleAnswer(answer) {
-        const currentQuestion = questions[currentQuestionIndex];
-
-        // Store answer for the current player
-        if (currentPlayer === 1) {
-            player1Responses[currentQuestion.id] = answer;
-            currentPlayer = 2; // Switch to Player 2
-        } else {
-            player2Responses[currentQuestion.id] = answer;
-            currentPlayer = 1; // Switch back to Player 1 and move to the next question
-
-            // Check for a match if both players have answered
-            if (player1Responses[currentQuestion.id] === 'yes' && player2Responses[currentQuestion.id] === 'yes') {
-                matchedCards.push(currentQuestion);
-                displayMatch(currentQuestion); // Show match animation
-            }
-
-            // Move to the next question
-            currentQuestionIndex++;
-        }
-
-        // Save progress to Firebase after each answer
-        saveGameProgressToFirebase(player1, player2);
-
-        // Display the next question for the next player
-        displayNextQuestionForPlayer();
     }
 
     // Display match animation and update the match stack
@@ -190,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         setTimeout(() => {
             questionCard.classList.remove('matched');
-            displayNextQuestionForPlayer(); // Move to the next question after animation
         }, 4000);
 
         // Update match stack
@@ -207,109 +137,91 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Mode 2 logic will be similar but without needing both players to answer the same question
-    // They will each get random questions asynchronously, and matches will be tracked as they answer
+    // Function to start or resume the game based on player names
+    function startOrResumeGame() {
+        player1 = document.getElementById('player1-name').value;
+        player2 = document.getElementById('player2-name').value;
 
-    document.getElementById('mode2-button').addEventListener('click', () => {
-        hideElement(landingPage);
-        showElement(mode2Name);
-    });
-
-    // Save Player Name for Mode 2
-    document.getElementById('save-mode2-name').addEventListener('click', () => {
-        player1 = document.getElementById('player1-mode2-name').value;
-
-        if (player1) {
-            hideElement(mode2Name);
-            showElement(mode2Session);
-        } else {
-            alert('Please enter your name.');
-        }
-    });
-
-    // Create Session in Mode 2
-    document.getElementById('create-session-button').addEventListener('click', () => {
-        sessionCode = generateSessionCode();
-        firebase.database().ref(`sessions/${sessionCode}`).set({
-            player1: player1,
-            status: 'waiting'
-        }).then(() => {
+        if (player1 && player2) {
+            hideElement(mode1Names);
             showElement(gameLayout);
             showElement(cardContainer);
-            sessionCodeDisplay.classList.remove('hidden');
-            document.getElementById('session-code').textContent = sessionCode;
-            playerInfo.innerHTML = `Players: ${player1}`;
-        }).catch((error) => {
-            console.error("Error creating session: ", error);
-        });
-    });
+            playerInfo.innerHTML = `Players: ${player1} and ${player2}`;
 
-    // Join Session in Mode 2
-    document.getElementById('join-session-button').addEventListener('click', () => {
-        const enteredCode = document.getElementById('join-session-code').value;
-        if (!enteredCode) {
-            alert("Please enter a valid session code.");
+            // Load game progress from Firebase and resume the game
+            loadGameProgressFromFirebase(() => {
+                displayNextQuestionForPlayer1();  // Start game with Player 1
+            });
+        } else {
+            alert('Please enter both player names.');
+        }
+    }
+
+    // Mode 1: Player 1 answers and then Player 2 answers the same question
+    function displayNextQuestionForPlayer1() {
+        if (player1QuestionIndex >= questions.length) {
+            questionCard.innerHTML = 'No more questions available.';
             return;
         }
 
-        firebase.database().ref(`sessions/${enteredCode}`).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                const sessionData = snapshot.val();
-                if (sessionData.status === 'waiting') {
-                    firebase.database().ref(`sessions/${enteredCode}`).update({
-                        player2: player1,
-                        status: 'in-progress'
-                    }).then(() => {
-                        sessionCode = enteredCode;
-                        showElement(gameLayout);
-                        showElement(cardContainer);
-                        playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player1}`;
-                    }).catch((error) => {
-                        console.error("Error joining session: ", error);
-                    });
-                } else {
-                    alert("This session is already in progress.");
-                }
-            } else {
-                alert("Session code not found.");
-            }
-        }).catch((error) => {
-            console.error("Error fetching session: ", error);
-        });
-    });
+        const currentQuestion = questions[player1QuestionIndex];
+        questionCard.innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
+        playerInfo.innerHTML = `It's ${player1}'s turn to answer.`;
+    }
+
+    function displayNextQuestionForPlayer2() {
+        if (player2QuestionIndex >= questions.length) {
+            questionCard.innerHTML = 'No more questions available.';
+            return;
+        }
+
+        const currentQuestion = questions[player2QuestionIndex];
+        questionCard.innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
+        playerInfo.innerHTML = `It's ${player2}'s turn to answer.`;
+    }
+
+    // Handle Yes/No Answer for Player 1 and Player 2
+    document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
+    document.getElementById('no-button').addEventListener('click', () => handleAnswer('no'));
+
+    function handleAnswer(answer) {
+        const currentQuestionIndex = currentPlayer === 1 ? player1QuestionIndex : player2QuestionIndex;
+        const currentQuestion = questions[currentQuestionIndex];
+
+        if (currentPlayer === 1) {
+            player1Responses[currentQuestion.id] = answer;
+            currentPlayer = 2; // Switch to Player 2
+            player1QuestionIndex++;
+            checkForMatch(currentQuestion.id);  // Check if it's a match
+            saveGameProgressToFirebase(); // Save progress
+            displayNextQuestionForPlayer2();  // Now it's Player 2's turn
+        } else {
+            player2Responses[currentQuestion.id] = answer;
+            currentPlayer = 1; // Switch back to Player 1
+            player2QuestionIndex++;
+            checkForMatch(currentQuestion.id);  // Check if it's a match
+            saveGameProgressToFirebase(); // Save progress
+            displayNextQuestionForPlayer1();  // Now it's Player 1's turn
+        }
+    }
+
+    // Starting the game for Mode 1
+    document.getElementById('save-mode1-names').addEventListener('click', startOrResumeGame);
 
     // **Back to Landing Page and Reset Everything**
     backToLandingButton.addEventListener('click', () => {
         // Hide all game and session-related elements
         hideElement(gameLayout);
         hideElement(cardContainer);
-        hideElement(sessionCodeDisplay);
-        hideElement(mode1Names);
-        hideElement(mode2Name);
-        hideElement(mode2Session);
 
         // Clear all dynamic content
         playerInfo.innerHTML = '';
         questionCard.innerHTML = '';
-        currentQuestionIndex = 0; // Reset the question index
         player1 = '';
         player2 = '';
         currentPlayer = 1;  // Reset player turn
-        sessionCode = '';  // Clear session code
-        gameMode = 1;  // Reset the game mode to 1 by default
 
         // Show landing page again
         showElement(landingPage);
     });
-
-    // Utility Functions
-    function generateSessionCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 5; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    }
-
 });
