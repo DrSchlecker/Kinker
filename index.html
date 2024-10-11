@@ -48,16 +48,20 @@
         <button id="save-mode1-names">Save Names</button>
     </div>
 
-    <!-- Mode 2: Ask for one player name and show session options -->
+    <!-- Mode 2: Ask for one player name and session code -->
     <div id="mode2-player-name" class="hidden">
         <h3>Enter Your Name:</h3>
         <input type="text" id="player1-mode2-name" placeholder="Player Name"><br><br>
-        <button id="save-mode2-name">Save Name</button>
+        <label for="session-code">Enter Session Code or Create New:</label>
+        <input type="text" id="session-code-input" placeholder="Session Code"><br><br>
+        <button id="create-session-button">Create Session</button>
+        <button id="join-session-button">Join Session</button>
     </div>
 
     <!-- Game layout for both modes -->
     <div id="game-layout" class="hidden">
         <h3>Current Game:</h3>
+        <p id="session-code-display" class="hidden">Session Code: <span id="session-code"></span></p>
         <p id="player-info">Players: <span id="player-names"></span></p>
         
         <div id="card-container" class="hidden">
