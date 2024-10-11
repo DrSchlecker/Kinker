@@ -6,6 +6,16 @@ document.addEventListener("DOMContentLoaded", function() {
         return `${sortedNames[0]}-${sortedNames[1]}`;
     }
 
+    // Utility function to generate a random session code
+    function generateSessionCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
     // Function to save a response to Firebase
     function saveResponseToFirebase(player, questionId, answer) {
         firebase.database().ref(`responses/${getCombinedNickname(player, currentPlayer)}/${questionId}`).set({
@@ -79,6 +89,19 @@ document.addEventListener("DOMContentLoaded", function() {
         return array;
     }
 
+    // Generate and display a session code for Mode 2
+    function createSessionCode() {
+        const sessionCode = generateSessionCode();
+        document.getElementById('session-code').textContent = sessionCode;
+        document.getElementById('session-code-display').style.display = 'block';
+        firebase.database().ref(`sessions/${sessionCode}`).set({
+            player1: player1,
+            status: 'waiting'
+        }).catch(error => {
+            console.error("Error creating session code:", error);
+        });
+    }
+
     function displayNextQuestion() {
         if (currentQuestionIndex >= questions.length) {
             document.getElementById('question-card').textContent = 'No more questions available.';
@@ -112,6 +135,24 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('full-reset-button').addEventListener('click', () => {
         localStorage.clear();
         window.location.reload();
+    });
+
+    // Save nickname and register player
+    document.getElementById('save-nickname-button').addEventListener('click', () => {
+        const nickname = document.getElementById('nickname-input').value;
+        if (nickname) {
+            localStorage.setItem('playerNickname', nickname);
+            player1 = nickname;
+            alert('Nickname saved!');
+        } else {
+            alert('Please enter a valid nickname.');
+        }
+    });
+
+    // Mode 2: Create a session code
+    document.getElementById('mode2-button').addEventListener('click', () => {
+        gameMode = 2;
+        createSessionCode();
     });
 
     loadGameState();
