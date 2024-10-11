@@ -344,7 +344,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Display the next question
         displayNextQuestionForMode2();
-    }
+    
 
     // Handle Yes/No Answer in Mode 2
     document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode2('yes'));
