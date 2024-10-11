@@ -31,26 +31,28 @@
 <body>
 
     <!-- Landing page -->
-   <div id="landing-page">
+    <div id="landing-page">
         <h1>Welcome to the Question Game</h1>
-        <p>Select a game mode:</p>
+        <h3>Select a game mode:</h3>
         <button id="mode1-button">Mode 1: Same questions for both players (Offline)</button>
         <button id="mode2-button">Mode 2: Different questions for both players (Online)</button>
     </div>
 
-    <!-- Mode 1: Player Names -->
+    <!-- Mode 1: Ask for two player names -->
     <div id="mode1-player-names" class="hidden">
-        <h3>Enter Player Names for Mode 1</h3>
-        <input id="player1-name" type="text" placeholder="Player 1 Name" />
-        <input id="player2-name" type="text" placeholder="Player 2 Name" />
-        <button id="save-mode1-names">Start Game</button>
+        <h3>Enter Player Names:</h3>
+        <label for="player1-name">Player 1:</label>
+        <input type="text" id="player1-name" placeholder="Player 1 Name"><br><br>
+        <label for="player2-name">Player 2:</label>
+        <input type="text" id="player2-name" placeholder="Player 2 Name"><br><br>
+        <button id="save-mode1-names">Save Names</button>
     </div>
 
-    <!-- Mode 2: Player Name -->
+    <!-- Mode 2: Ask for one player name and show session options -->
     <div id="mode2-player-name" class="hidden">
-        <h3>Enter Player Name for Mode 2</h3>
-        <input id="player1-mode2-name" type="text" placeholder="Your Name" />
-        <button id="save-mode2-name">Start Game</button>
+        <h3>Enter Your Name:</h3>
+        <input type="text" id="player1-mode2-name" placeholder="Player Name"><br><br>
+        <button id="save-mode2-name">Save Name</button>
     </div>
 
     <!-- Mode 2: Create session or join session -->
