@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function() {
         playerInfo.innerHTML = `It's ${player2}'s turn to answer.`;
     }
 
-    // Handle Yes/No Answer for Player 1 and Player 2
+    // Handle Yes/No Answer for Player 1 and Player 2 (Mode 1)
     document.getElementById('yes-button').addEventListener('click', () => handleAnswer('yes'));
     document.getElementById('no-button').addEventListener('click', () => handleAnswer('no'));
 
@@ -248,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (player1) {
             sessionKey = player1;  // Player 1's name will serve as the session key in this mode
+            gameMode = 2; // Set to Mode 2
             hideElement(mode2Name);
             showElement(gameLayout);
             showElement(cardContainer);
@@ -261,13 +262,27 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Utility Functions
-    function generateSessionCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 5; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
+    // Mode 2: Display random questions without switching turns
+    function displayNextQuestionForMode2() {
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+        questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
+        playerInfo.innerHTML = `It's ${player1}'s turn to answer this question.`;
     }
+
+    // Mode 2: Handle Yes/No Answer without switching players
+    function handleAnswerMode2(answer) {
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+
+        player1Responses[randomQuestion.id] = answer;
+        checkForMatch(randomQuestion.id);  // Check if it's a match
+        saveGameProgressToFirebase(); // Save progress
+
+        // Display the next question
+        displayNextQuestionForMode2();
+    }
+
+    // Handle Yes/No Answer in Mode 2
+    document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode2('yes'));
+    document.getElementById('no-button').addEventListener('click', () => handleAnswerMode2('no'));
+
 });
