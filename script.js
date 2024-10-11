@@ -1,25 +1,32 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    document.addEventListener("DOMContentLoaded", function() {
-    // Get the landing page buttons
+    // Get the buttons and div elements
     const mode1Button = document.getElementById('mode1-button');
     const mode2Button = document.getElementById('mode2-button');
+    const landingPage = document.getElementById('landing-page');
+    const mode1Names = document.getElementById('mode1-player-names');
+    const mode2Name = document.getElementById('mode2-player-name');
 
-    // Add event listener for Mode 1 button
+    // Add event listeners for the buttons
     mode1Button.addEventListener('click', function() {
-        // Hide the landing page and show the player name input for Mode 1
         hideElement(landingPage);
-        showElement(mode1Names);  // Show Mode 1 input for player names
+        showElement(mode1Names);  // Show input fields for Mode 1
     });
 
-    // Add event listener for Mode 2 button
     mode2Button.addEventListener('click', function() {
-        // Hide the landing page and show the player name input for Mode 2
         hideElement(landingPage);
-        showElement(mode2Name);  // Show Mode 2 input for player names
+        showElement(mode2Name);  // Show input fields for Mode 2
     });
-});
 
+    // Utility functions to show/hide elements
+    function hideElement(element) {
+        element.classList.add('hidden');
+    }
+
+    function showElement(element) {
+        element.classList.remove('hidden');
+    }
+});
 
     // Firebase Configuration (provided by you)
     const firebaseConfig = {
