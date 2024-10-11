@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fragen-Spiel</title>
+    <title>Question Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,7 +19,7 @@
         .buttons {
             margin-top: 20px;
         }
-        /* Animation, wenn ein Match gefunden wird */
+        /* Animation for match highlight */
         @keyframes matchHighlight {
             0% { background-color: white; }
             50% { background-color: yellow; }
@@ -31,48 +31,61 @@
         #match-stack-container {
             margin-top: 30px;
         }
+        #loading-spinner {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Fragen-Spiel</h1>
+    <h1>Question Game</h1>
 
     <div>
-        <h3>Wähle einen Spielmodus</h3>
-        <button id="mode1-button">Modus 1: Gleiche Fragen für beide Spieler</button>
-        <button id="mode2-button">Modus 2: Unterschiedliche Fragen für beide Spieler</button>
+        <h3>Select a game mode</h3>
+        <button id="mode1-button">Mode 1: Same questions for both players</button>
+        <button id="mode2-button">Mode 2: Different questions for both players</button>
     </div>
 
     <div id="card-container" style="display:none;">
-        <div class="card" id="question-card">Hier wird die Frage angezeigt</div>
+        <div class="card" id="question-card">The question will be displayed here</div>
         <div class="buttons">
-            <button id="yes-button">Ja</button>
-            <button id="no-button">Nein</button>
+            <button id="yes-button">Yes</button>
+            <button id="no-button">No</button>
         </div>
     </div>
 
     <div>
-        <h2>Spiel-Verlauf</h2>
-        <p id="info">Warte auf die Antwort...</p>
-        <button id="reset-button" style="display:none;">Deck Zurücksetzen</button>
-        <!-- Vollständiger Reset Button -->
-        <button id="full-reset-button" style="display:block;">Vollständiger Reset</button>
-
+        <h2>Game Progress</h2>
+        <p id="info">Waiting for response...</p>
+        <button id="reset-button" style="display:none;">Reset Deck</button>
+        <button id="full-reset-button" style="display:block;">Full Reset</button>
     </div>
 
-    <!-- Bereich für Match-Stapel -->
+    <!-- Area for match stack -->
     <div id="match-stack-container">
-        <h2>Match-Stapel</h2>
+        <h2>Match Stack</h2>
         <div id="match-stack"></div>
     </div>
 
+    <!-- Player nicknames and current game info -->
+    <div id="game-info" style="margin-top: 20px;">
+        <h3>Current Game</h3>
+        <p>Players: <span id="player-names"></span></p>
+        <p id="session-code-display"></p>
+    </div>
 
-    <!-- Firebase SDKs als klassische Skripte einbinden -->
+    <!-- Loading spinner -->
+    <div id="loading-spinner">
+        <img src="spinner.gif" alt="Loading...">
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase-Konfiguration
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC7ATp5cSVxkLNvKU5ZS0nFLEY63jWaZJU",
             authDomain: "kinker-2024.firebaseapp.com",
@@ -83,40 +96,44 @@
             appId: "1:986360648193:web:065d171dc2c5354d7ee600"
         };
 
-         // Überprüfen, ob die App bereits initialisiert ist, um einen doppelten Aufruf zu vermeiden
-      if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-      } else {
-      firebase.app(); // Verwende die bereits initialisierte App
-  }
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        } else {
+            firebase.app(); // Use existing app
+        }
+
         const database = firebase.database();
 
-        // Firebase Funktionen, um Daten zu schreiben
+        // Function to write data to Firebase
         function writeData(player, answer) {
             firebase.database().ref('answers/' + player).set({
                 answer: answer
+            }).catch(error => {
+                console.error("Error writing data:", error);
             });
         }
 
-        // Firebase Funktionen, um Daten zu lesen und Änderungen zu überwachen
+        // Function to read data from Firebase and listen for changes
         function readData() {
             const dbRef = firebase.database().ref();
             firebase.database().ref('answers').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    console.log("Aktuelle Antworten: ", data);
-                    // Hier kannst du mit den Daten arbeiten, z.B. die Antworten von beiden Spielern vergleichen
+                    console.log("Current answers: ", data);
                 } else {
-                    console.log("Keine Daten verfügbar.");
+                    console.log("No data available.");
                 }
+            }, error => {
+                console.error("Error reading data:", error);
             });
         }
 
-        // Firebase-Funktionen aufrufen
-        readData(); // Lies die Daten bei Seitenaufruf
+        // Call readData on page load to sync with Firebase
+        readData();
     </script>
 
-    <!-- Dein JavaScript -->
+    <!-- Game logic script -->
     <script src="script.js"></script>
 
 </body>
