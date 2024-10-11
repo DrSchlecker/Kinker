@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
             appId: "1:986360648193:web:065d171dc2c5354d7ee600"
     };
 
-    if (!firebase.apps.length) {
+     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     } else {
         firebase.app();
@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let gameMode = 1; // Default Mode 1
     let sessionCode = '';
     let currentQuestionIndex = 0;
+    let player1Responses = {};
+    let player2Responses = {};
 
     const questions = [
         { id: 1, title: "Question 1", body: "Explanation for Question 1" },
@@ -54,6 +56,49 @@ document.addEventListener("DOMContentLoaded", function() {
         element.classList.add('hidden');
     }
 
+    // Function to generate a combined nickname key for Firebase
+    function getCombinedNicknameKey(player1, player2) {
+        const sortedNames = [player1, player2].sort();
+        return `${sortedNames[0]}-${sortedNames[1]}`;
+    }
+
+    // Save game progress to Firebase (shared for both modes)
+    function saveGameProgressToFirebase(player1, player2) {
+        const combinedKey = getCombinedNicknameKey(player1, player2);
+        const gameState = {
+            currentQuestionIndex: currentQuestionIndex,
+            player1Responses: player1Responses,
+            player2Responses: player2Responses
+        };
+
+        firebase.database().ref(`gameProgress/${combinedKey}`).set(gameState)
+            .then(() => console.log(`Progress saved to Firebase for ${combinedKey}.`))
+            .catch((error) => console.error("Error saving game progress to Firebase:", error));
+    }
+
+    // Load game progress from Firebase (shared for both modes)
+    function loadGameProgressFromFirebase(player1, player2, callback) {
+        const combinedKey = getCombinedNicknameKey(player1, player2);
+
+        firebase.database().ref(`gameProgress/${combinedKey}`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const gameState = snapshot.val();
+                    currentQuestionIndex = gameState.currentQuestionIndex;
+                    player1Responses = gameState.player1Responses || {};
+                    player2Responses = gameState.player2Responses || {};
+                    console.log(`Loaded progress from Firebase for ${combinedKey}.`);
+                } else {
+                    currentQuestionIndex = 0;
+                    player1Responses = {};
+                    player2Responses = {};
+                    console.log(`No saved game progress found for ${combinedKey}. Starting fresh.`);
+                }
+                callback(); // Proceed with the game after loading the state
+            })
+            .catch((error) => console.error("Error loading game progress from Firebase:", error));
+    }
+
     // Event Listener for Mode 1 Button (Offline Mode)
     document.getElementById('mode1-button').addEventListener('click', () => {
         hideElement(landingPage);
@@ -71,7 +116,9 @@ document.addEventListener("DOMContentLoaded", function() {
             showElement(cardContainer);
             playerInfo.innerHTML = `Players: ${player1} and ${player2}`;
             gameMode = 1;  // Set game mode to 1 (offline)
-            displayNextQuestion();  // Start the game with the first question
+
+            // Load game progress from Firebase and then start the game
+            loadGameProgressFromFirebase(player1, player2, displayNextQuestion);
         } else {
             alert('Please enter both player names.');
         }
@@ -90,8 +137,6 @@ document.addEventListener("DOMContentLoaded", function() {
         // Show the current question and indicate whose turn it is
         questionCard.innerHTML = `<h3>${currentQuestion.title}</h3><p>${currentQuestion.body}</p>`;
         playerInfo.innerHTML = `It's ${currentPlayerName}'s turn to answer.`;
-
-        // After this player answers, switch to the other player for the next turn
     }
 
     // Handle Yes/No Answer and Alternate Turns (Offline Mode 1)
@@ -104,14 +149,23 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function handleAnswer(answer) {
-        // Log the answer (in reality, you could save these locally if needed)
-        console.log(`${currentPlayer === 1 ? player1 : player2} answered: ${answer}`);
+        const currentQuestion = questions[currentQuestionIndex];
+
+        // Store answer for the current player
+        if (currentPlayer === 1) {
+            player1Responses[currentQuestion.id] = answer;
+        } else {
+            player2Responses[currentQuestion.id] = answer;
+        }
 
         // Move to the next question
         currentQuestionIndex++;
 
         // Switch players: toggle between 1 and 2
         currentPlayer = currentPlayer === 1 ? 2 : 1;
+
+        // Save progress to Firebase after each answer
+        saveGameProgressToFirebase(player1, player2);
 
         // Display the next question and update whose turn it is
         displayNextQuestion();
@@ -186,11 +240,27 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Go back to landing page
+    // **Back to Landing Page and Reset Everything**
     backToLandingButton.addEventListener('click', () => {
+        // Hide all game and session-related elements
         hideElement(gameLayout);
         hideElement(cardContainer);
         hideElement(sessionCodeDisplay);
+        hideElement(mode1Names);
+        hideElement(mode2Name);
+        hideElement(mode2Session);
+
+        // Clear all dynamic content
+        playerInfo.innerHTML = '';
+        questionCard.innerHTML = '';
+        currentQuestionIndex = 0; // Reset the question index
+        player1 = '';
+        player2 = '';
+        currentPlayer = 1;  // Reset player turn
+        sessionCode = '';  // Clear session code
+        gameMode = 1;  // Reset the game mode to 1 by default
+
+        // Show landing page again
         showElement(landingPage);
     });
 
