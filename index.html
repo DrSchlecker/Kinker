@@ -41,10 +41,20 @@
 
     <h1>Question Game</h1>
 
+    <!-- Nickname input field -->
+    <div>
+        <label for="nickname">Enter your nickname:</label>
+        <input type="text" id="nickname-input" placeholder="Nickname">
+        <button id="save-nickname-button">Save Nickname</button>
+    </div>
+
     <div>
         <h3>Select a game mode</h3>
         <button id="mode1-button">Mode 1: Same questions for both players</button>
         <button id="mode2-button">Mode 2: Different questions for both players</button>
+        <p id="session-code-display" style="display:none;">Session Code: <span id="session-code"></span></p>
+        <button id="join-game-button" style="display:none;">Join Game with Code</button>
+        <input type="text" id="join-game-code" placeholder="Enter Session Code" style="display:none;">
     </div>
 
     <div id="card-container" style="display:none;">
