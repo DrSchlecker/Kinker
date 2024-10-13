@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('mode2-button').addEventListener('click', () => {
         hideElement(landingPage);
         showElement(mode2Name);  // Show player name input for Mode 2
-        showElement(joinSessionForm); // Show the "Join Session" form
+        showElement(join-session-form); // Show the "Join Session" form
     });
 
     // Function to start or resume the game based on player names (Mode 1)
