@@ -200,14 +200,13 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode1('yes'));
     document.getElementById('no-button').addEventListener('click', () => handleAnswerMode1('no'));
 
-   function handleAnswerMode1(answer) {
+ function handleAnswerMode1(answer) {
     // Check if it's Player 1's turn
     if (currentPlayer === 1) {
-        // Ensure player1QuestionIndex is within bounds
+        // Check if there are still questions left for Player 1
         if (player1QuestionIndex < questions.length) {
             const currentQuestion = questions[player1QuestionIndex];
             
-            // Ensure currentQuestion is valid before accessing its properties
             if (currentQuestion) {
                 player1Responses[currentQuestion.id] = answer;
                 currentPlayer = 2; // Switch to Player 2
@@ -219,16 +218,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error("Invalid question for Player 1.");
             }
         } else {
-            console.error("Player 1 question index is out of bounds.");
+            // No more questions for Player 1
+            console.log("Player 1 has answered all available questions.");
+            questionCard.innerHTML = 'No more questions available for Player 1.';
         }
     } 
     // Check if it's Player 2's turn
     else {
-        // Ensure player2QuestionIndex is within bounds
+        // Check if there are still questions left for Player 2
         if (player2QuestionIndex < questions.length) {
             const currentQuestion = questions[player2QuestionIndex];
             
-            // Ensure currentQuestion is valid before accessing its properties
             if (currentQuestion) {
                 player2Responses[currentQuestion.id] = answer;
                 currentPlayer = 1; // Switch back to Player 1
@@ -240,7 +240,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error("Invalid question for Player 2.");
             }
         } else {
-            console.error("Player 2 question index is out of bounds.");
+            // No more questions for Player 2
+            console.log("Player 2 has answered all available questions.");
+            questionCard.innerHTML = 'No more questions available for Player 2.';
         }
     }
 }
