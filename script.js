@@ -200,26 +200,51 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode1('yes'));
     document.getElementById('no-button').addEventListener('click', () => handleAnswerMode1('no'));
 
-    function handleAnswerMode1(answer) {
-        const currentQuestionIndex = currentPlayer === 1 ? player1QuestionIndex : player2QuestionIndex;
-        const currentQuestion = questions[currentQuestionIndex];
-
-        if (currentPlayer === 1) {
-            player1Responses[currentQuestion.id] = answer;
-            currentPlayer = 2; // Switch to Player 2
-            player1QuestionIndex++;
-            checkForMatch(currentQuestion.id);  // Check if it's a match
-            saveGameProgressToFirebase(); // Save progress
-            displayNextQuestionForPlayer2();  // Now it's Player 2's turn
+   function handleAnswerMode1(answer) {
+    // Check if it's Player 1's turn
+    if (currentPlayer === 1) {
+        // Ensure player1QuestionIndex is within bounds
+        if (player1QuestionIndex < questions.length) {
+            const currentQuestion = questions[player1QuestionIndex];
+            
+            // Ensure currentQuestion is valid before accessing its properties
+            if (currentQuestion) {
+                player1Responses[currentQuestion.id] = answer;
+                currentPlayer = 2; // Switch to Player 2
+                player1QuestionIndex++;
+                checkForMatch(currentQuestion.id);  // Check if it's a match
+                saveGameProgressToFirebase(); // Save progress
+                displayNextQuestionForPlayer2();  // Now it's Player 2's turn
+            } else {
+                console.error("Invalid question for Player 1.");
+            }
         } else {
-            player2Responses[currentQuestion.id] = answer;
-            currentPlayer = 1; // Switch back to Player 1
-            player2QuestionIndex++;
-            checkForMatch(currentQuestion.id);  // Check if it's a match
-            saveGameProgressToFirebase(); // Save progress
-            displayNextQuestionForPlayer1();  // Now it's Player 1's turn
+            console.error("Player 1 question index is out of bounds.");
+        }
+    } 
+    // Check if it's Player 2's turn
+    else {
+        // Ensure player2QuestionIndex is within bounds
+        if (player2QuestionIndex < questions.length) {
+            const currentQuestion = questions[player2QuestionIndex];
+            
+            // Ensure currentQuestion is valid before accessing its properties
+            if (currentQuestion) {
+                player2Responses[currentQuestion.id] = answer;
+                currentPlayer = 1; // Switch back to Player 1
+                player2QuestionIndex++;
+                checkForMatch(currentQuestion.id);  // Check if it's a match
+                saveGameProgressToFirebase(); // Save progress
+                displayNextQuestionForPlayer1();  // Now it's Player 1's turn
+            } else {
+                console.error("Invalid question for Player 2.");
+            }
+        } else {
+            console.error("Player 2 question index is out of bounds.");
         }
     }
+}
+
 
     // Starting the game for Mode 1
     document.getElementById('save-mode1-names').addEventListener('click', startOrResumeGameMode1);
