@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const mode2Name = document.getElementById('mode2-player-name');
     const gameLayout = document.getElementById('game-layout');
     const cardContainer = document.getElementById('card-container');
-    const playerInfo = document.getElementById('player-info');
+    const playerInfo = document.getElementById('playerInfo');
     const questionCard = document.getElementById('question-card');
     const backToLandingButton = document.getElementById('back-to-landing');
     const matchStack = document.getElementById('match-stack');
