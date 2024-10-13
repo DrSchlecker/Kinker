@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let player2QuestionIndex = 0;
     let player1Responses = {};
     let player2Responses = {};
+    let answeredQuestions = [];
     let matchedCards = [];
     const questions = [
         { id: 1, title: "Question 1", body: "Explanation for Question 1" },
@@ -318,6 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             hideElement(mode2Name);
                             showElement(gameLayout);
                             showElement(cardContainer);
+                            hideElement (joinSessionForm);
                             playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player2}`;
 
                             // Load the saved game progress and resume
@@ -356,6 +358,12 @@ function handleAnswerMode2(answer) {
     if (randomQuestion) {
         // Save the current player's response
         player1Responses[randomQuestion.id] = answer;
+
+        // Add question to answered questions to avoid repetition
+        answeredQuestions.push(randomQuestion.id);
+
+        // Filter out answered questions from the questions array
+        questions = questions.filter(q => !answeredQuestions.includes(q.id));
 
         // Check for a match
         checkForMatch(randomQuestion.id);
