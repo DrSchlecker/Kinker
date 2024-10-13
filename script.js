@@ -343,60 +343,90 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-   // Mode 2: Display random questions without switching turns
-function displayNextQuestionForMode2() {
-    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
-    questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
-    playerInfo.innerHTML = `It's your turn to answer this question, ${player1}.`;
-}
+  // Arrays to track answered questions for each player independently
+let player1AnsweredQuestions = [];
+let player2AnsweredQuestions = [];
 
-// Mode 2: Handle Yes/No Answer without switching players
-function handleAnswerMode2(answer) {
-    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+// Function to handle answers in Mode 2
+function handleAnswerMode2(player, answer) {
+    // Determine which player is answering and track their progress
+    const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
+    const playerResponses = player === 1 ? player1Responses : player2Responses;
 
-    // Ensure the randomQuestion is valid
-    if (randomQuestion) {
-        // Save the current player's response
-        player1Responses[randomQuestion.id] = answer;
+    // Filter questions for the current player (unanswered questions)
+    const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id));
 
-        // Add question to answered questions to avoid repetition
-        answeredQuestions.push(randomQuestion.id);
+    // If there are available questions, proceed
+    if (availableQuestions.length > 0) {
+        // Get a random question from the available pool
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
 
-        // Filter out answered questions from the questions array
-        questions = questions.filter(q => !answeredQuestions.includes(q.id));
+        if (randomQuestion) {
+            // Save the player's response
+            playerResponses[randomQuestion.id] = answer;
+            playerAnsweredQuestions.push(randomQuestion.id); // Mark this question as answered by the player
 
-        // Check for a match
-        checkForMatch(randomQuestion.id);
+            // Check for a match after both players have answered this question
+            checkForMatch(randomQuestion.id);
 
-        // Save progress to Firebase
-        saveGameProgressToFirebase();
+            // Save the game progress after the answer
+            saveGameProgressToFirebase();
 
-        // Display the next question for the same player
-        displayNextQuestionForMode2();
+            // Display the next question for this player (if there are more unanswered questions)
+            if (availableQuestions.length > 1) {
+                displayNextQuestionForPlayer(player);
+            } else {
+                questionCard.innerHTML = `No more questions available for Player ${player}.`;
+            }
+        } else {
+            console.error("Failed to load a valid question.");
+        }
     } else {
-        console.error("Failed to load a valid question.");
+        questionCard.innerHTML = `No more questions available for Player ${player}.`;
     }
 }
 
-// Ensure the same question can only match once
+// Function to display the next question for the current player
+function displayNextQuestionForPlayer(player) {
+    const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
+
+    // Filter available questions (unanswered questions)
+    const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id));
+
+    // Display a random question from the available pool
+    if (availableQuestions.length > 0) {
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
+    } else {
+        questionCard.innerHTML = `No more questions available for Player ${player}.`;
+    }
+}
+
+// Function to check for matches when both players answer the same question
 function checkForMatch(questionId) {
-    if (!matchedCards.some(q => q.id === questionId)) {
-        if (player1Responses[questionId] === 'yes' && player2Responses[questionId] === 'yes') {
-            const matchedQuestion = questions.find(q => q.id === questionId);
+    const player1Answer = player1Responses[questionId];
+    const player2Answer = player2Responses[questionId];
+
+    // If both players answered 'yes' to the same question, it's a match
+    if (player1Answer === 'yes' && player2Answer === 'yes') {
+        const matchedQuestion = questions.find(q => q.id === questionId);
+        if (matchedQuestion && !matchedCards.includes(matchedQuestion)) {
             matchedCards.push(matchedQuestion);
-            displayMatch(matchedQuestion);  // Show match animation
-            saveGameProgressToFirebase();   // Save the match to Firebase
+            displayMatch(matchedQuestion);
         }
     }
 }
 
-
-        // Display the next question
-        displayNextQuestionForMode2();
     
 
     // Handle Yes/No Answer in Mode 2
-    document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode2('yes'));
-    document.getElementById('no-button').addEventListener('click', () => handleAnswerMode2('no'));
+document.getElementById('yes-button').addEventListener('click', () => {
+    handleAnswerMode2(currentPlayer, 'yes');
+});
+
+document.getElementById('no-button').addEventListener('click', () => {
+    handleAnswerMode2(currentPlayer, 'no');
+});
+
 
 });
