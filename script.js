@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const landingPage = document.getElementById('landing-page');
     const mode1Names = document.getElementById('mode1-player-names');
     const mode2Name = document.getElementById('mode2-player-name');
+    const joinSessionForm = document.getElementById('join-session-form');
     const gameLayout = document.getElementById('game-layout');
     const cardContainer = document.getElementById('card-container');
     const playerInfo = document.getElementById('playerInfo');
@@ -150,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('mode2-button').addEventListener('click', () => {
         hideElement(landingPage);
         showElement(mode2Name);  // Show player name input for Mode 2
-        showElement(join-session-form); // Show the "Join Session" form
+        showElement(joinSessionForm); // Show the "Join Session" form
     });
 
     // Function to start or resume the game based on player names (Mode 1)
