@@ -164,12 +164,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // **Reset Non-Matched Cards Feature**
-    resetButton.addEventListener('click', () => {
+   if(resetButton) { resetButton.addEventListener('click', () => {
         notMatchedCards = [];  // Clear non-matched cards
         saveMatchedCardsToFirebase();  // Save the reset state
         alert("All non-matched cards have been reset. You can play through them again.");
-    });
-
+    };
+                   } else {
+                            console.error('resetButton not working')
+   }
     // **Mode 1 Start/Resume Game with Improved Error Handling**
     function startOrResumeGameMode1() {
         player1 = document.getElementById('player1-name').value;
