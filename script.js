@@ -49,7 +49,24 @@ document.addEventListener("DOMContentLoaded", function() {
     const backToLandingButton = document.getElementById('back-to-landing');
     const matchStack = document.getElementById('match-stack');
     const resetButton = document.getElementById('reset-non-matched');
+    const mode1Button = document.getElementById('mode1-button');
+    const mode2Button = document.getElementById('mode2-button');
 
+
+    // Add event listeners to handle the button clicks
+    mode1Button.addEventListener('click', () => {
+        console.log("Mode 1 button clicked");
+     // Hide the landing page and show the form for Mode 1
+        hideElement(landingPage);
+        showElement(mode1Names);  // Assuming you want to show the mode1 player input form
+    });
+
+    mode2Button.addEventListener('click', () => {
+        console.log("Mode 2 button clicked");
+        // Hide the landing page and show the form for Mode 2
+        hideElement(landingPage);
+        showElement(mode2Name);  // Assuming you want to show the mode2 player input form
+    });
     // Utility to show/hide elements
     function showElement(element) {
         element.classList.remove('hidden');
