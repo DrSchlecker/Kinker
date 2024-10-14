@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let player2QuestionIndex = 0;
     let player1Responses = {};
     let player2Responses = {};
-    let answeredQuestions = [];
+    let player1AnsweredQuestions = [];
+    let player2AnsweredQuestions = [];
     let matchedCards = [];
     const questions = [
         { id: 1, title: "Question 1", body: "Explanation for Question 1" },
@@ -108,16 +109,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // Check for matches
     function checkForMatch(questionId) {
         // Ensure this question hasn't already been matched
-    if (!matchedCards.some(q => q.id === questionId)) {
-        if (player1Responses[questionId] === 'yes' && player2Responses[questionId] === 'yes') {
-            const matchedQuestion = questions.find(q => q.id === questionId);
-            matchedCards.push(matchedQuestion);
-            displayMatch(matchedQuestion); // Show match animation
-            saveGameProgressToFirebase();  // Save the match to Firebase
-        } else {
-            console.log("This question has already been matched.");
+        if (!matchedCards.some(q => q.id === questionId)) {
+            if (player1Responses[questionId] === 'yes' && player2Responses[questionId] === 'yes') {
+                const matchedQuestion = questions.find(q => q.id === questionId);
+                matchedCards.push(matchedQuestion);
+                displayMatch(matchedQuestion); // Show match animation
+                saveGameProgressToFirebase();  // Save the match to Firebase
+            } else {
+                console.log("This question has already been matched.");
+            }
         }
-    }}
+    }
 
     // Display match animation and update the match stack
     function displayMatch(question) {
@@ -203,53 +205,52 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('yes-button').addEventListener('click', () => handleAnswerMode1('yes'));
     document.getElementById('no-button').addEventListener('click', () => handleAnswerMode1('no'));
 
- function handleAnswerMode1(answer) {
-    // Check if it's Player 1's turn
-    if (currentPlayer === 1) {
-        // Check if there are still questions left for Player 1
-        if (player1QuestionIndex < questions.length) {
-            const currentQuestion = questions[player1QuestionIndex];
-            
-            if (currentQuestion) {
-                player1Responses[currentQuestion.id] = answer;
-                currentPlayer = 2; // Switch to Player 2
-                player1QuestionIndex++;
-                checkForMatch(currentQuestion.id);  // Check if it's a match
-                saveGameProgressToFirebase(); // Save progress
-                displayNextQuestionForPlayer2();  // Now it's Player 2's turn
+    function handleAnswerMode1(answer) {
+        // Check if it's Player 1's turn
+        if (currentPlayer === 1) {
+            // Check if there are still questions left for Player 1
+            if (player1QuestionIndex < questions.length) {
+                const currentQuestion = questions[player1QuestionIndex];
+
+                if (currentQuestion) {
+                    player1Responses[currentQuestion.id] = answer;
+                    currentPlayer = 2; // Switch to Player 2
+                    player1QuestionIndex++;
+                    checkForMatch(currentQuestion.id);  // Check if it's a match
+                    saveGameProgressToFirebase(); // Save progress
+                    displayNextQuestionForPlayer2();  // Now it's Player 2's turn
+                } else {
+                    console.error("Invalid question for Player 1.");
+                }
             } else {
-                console.error("Invalid question for Player 1.");
+                // No more questions for Player 1
+                console.log("Player 1 has answered all available questions.");
+                questionCard.innerHTML = 'No more questions available for Player 1.';
             }
-        } else {
-            // No more questions for Player 1
-            console.log("Player 1 has answered all available questions.");
-            questionCard.innerHTML = 'No more questions available for Player 1.';
         }
-    } 
-    // Check if it's Player 2's turn
-    else {
-        // Check if there are still questions left for Player 2
-        if (player2QuestionIndex < questions.length) {
-            const currentQuestion = questions[player2QuestionIndex];
-            
-            if (currentQuestion) {
-                player2Responses[currentQuestion.id] = answer;
-                currentPlayer = 1; // Switch back to Player 1
-                player2QuestionIndex++;
-                checkForMatch(currentQuestion.id);  // Check if it's a match
-                saveGameProgressToFirebase(); // Save progress
-                displayNextQuestionForPlayer1();  // Now it's Player 1's turn
+        // Check if it's Player 2's turn
+        else {
+            // Check if there are still questions left for Player 2
+            if (player2QuestionIndex < questions.length) {
+                const currentQuestion = questions[player2QuestionIndex];
+
+                if (currentQuestion) {
+                    player2Responses[currentQuestion.id] = answer;
+                    currentPlayer = 1; // Switch back to Player 1
+                    player2QuestionIndex++;
+                    checkForMatch(currentQuestion.id);  // Check if it's a match
+                    saveGameProgressToFirebase(); // Save progress
+                    displayNextQuestionForPlayer1();  // Now it's Player 1's turn
+                } else {
+                    console.error("Invalid question for Player 2.");
+                }
             } else {
-                console.error("Invalid question for Player 2.");
+                // No more questions for Player 2
+                console.log("Player 2 has answered all available questions.");
+                questionCard.innerHTML = 'No more questions available for Player 2.';
             }
-        } else {
-            // No more questions for Player 2
-            console.log("Player 2 has answered all available questions.");
-            questionCard.innerHTML = 'No more questions available for Player 2.';
         }
     }
-}
-
 
     // Starting the game for Mode 1
     document.getElementById('save-mode1-names').addEventListener('click', startOrResumeGameMode1);
@@ -319,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             hideElement(mode2Name);
                             showElement(gameLayout);
                             showElement(cardContainer);
-                            hideElement (joinSessionForm);
+                            hideElement(joinSessionForm);
                             playerInfo.innerHTML = `Players: ${sessionData.player1} and ${player2}`;
 
                             // Load the saved game progress and resume
@@ -343,90 +344,58 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-  // Arrays to track answered questions for each player independently
-let player1AnsweredQuestions = [];
-let player2AnsweredQuestions = [];
+    // Handle Yes/No Answer in Mode 2
+    document.getElementById('yes-button').addEventListener('click', () => {
+        handleAnswerMode2(currentPlayer, 'yes');
+    });
 
-// Function to handle answers in Mode 2
-function handleAnswerMode2(player, answer) {
-    // Determine which player is answering and track their progress
-    const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
-    const playerResponses = player === 1 ? player1Responses : player2Responses;
+    document.getElementById('no-button').addEventListener('click', () => {
+        handleAnswerMode2(currentPlayer, 'no');
+    });
 
-    // Filter questions for the current player (unanswered questions)
-    const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id));
+    // Function to handle answers in Mode 2 (players play independently)
+    function handleAnswerMode2(player, answer) {
+        const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
+        const playerResponses = player === 1 ? player1Responses : player2Responses;
 
-    // If there are available questions, proceed
-    if (availableQuestions.length > 0) {
-        // Get a random question from the available pool
-        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id) && !matchedCards.some(mq => mq.id === q.id));
 
-        if (randomQuestion) {
-            // Save the player's response
-            playerResponses[randomQuestion.id] = answer;
-            playerAnsweredQuestions.push(randomQuestion.id); // Mark this question as answered by the player
+        if (availableQuestions.length > 0) {
+            const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
 
-            // Check for a match after both players have answered this question
-            checkForMatch(randomQuestion.id);
+            if (randomQuestion) {
+                playerResponses[randomQuestion.id] = answer;
+                playerAnsweredQuestions.push(randomQuestion.id); // Mark this question as answered
 
-            // Save the game progress after the answer
-            saveGameProgressToFirebase();
+                checkForMatch(randomQuestion.id);
 
-            // Display the next question for this player (if there are more unanswered questions)
-            if (availableQuestions.length > 1) {
-                displayNextQuestionForPlayer(player);
+                saveGameProgressToFirebase();
+
+                if (availableQuestions.length > 1) {
+                    displayNextQuestionForPlayer(player);
+                } else {
+                    questionCard.innerHTML = `No more questions available for Player ${player}.`;
+                }
             } else {
-                questionCard.innerHTML = `No more questions available for Player ${player}.`;
+                console.error("Failed to load a valid question.");
             }
         } else {
-            console.error("Failed to load a valid question.");
-        }
-    } else {
-        questionCard.innerHTML = `No more questions available for Player ${player}.`;
-    }
-}
-
-// Function to display the next question for the current player
-function displayNextQuestionForPlayer(player) {
-    const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
-
-    // Filter available questions (unanswered questions)
-    const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id));
-
-    // Display a random question from the available pool
-    if (availableQuestions.length > 0) {
-        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
-    } else {
-        questionCard.innerHTML = `No more questions available for Player ${player}.`;
-    }
-}
-
-// Function to check for matches when both players answer the same question
-function checkForMatch(questionId) {
-    const player1Answer = player1Responses[questionId];
-    const player2Answer = player2Responses[questionId];
-
-    // If both players answered 'yes' to the same question, it's a match
-    if (player1Answer === 'yes' && player2Answer === 'yes') {
-        const matchedQuestion = questions.find(q => q.id === questionId);
-        if (matchedQuestion && !matchedCards.includes(matchedQuestion)) {
-            matchedCards.push(matchedQuestion);
-            displayMatch(matchedQuestion);
+            questionCard.innerHTML = `No more questions available for Player ${player}.`;
         }
     }
-}
 
-    
+    // Function to display the next question for the current player in Mode 2
+    function displayNextQuestionForPlayer(player) {
+        const playerAnsweredQuestions = player === 1 ? player1AnsweredQuestions : player2AnsweredQuestions;
 
-    // Handle Yes/No Answer in Mode 2
-document.getElementById('yes-button').addEventListener('click', () => {
-    handleAnswerMode2(currentPlayer, 'yes');
-});
+        const availableQuestions = questions.filter(q => !playerAnsweredQuestions.includes(q.id) && !matchedCards.some(mq => mq.id === q.id));
 
-document.getElementById('no-button').addEventListener('click', () => {
-    handleAnswerMode2(currentPlayer, 'no');
-});
-
+        if (availableQuestions.length > 0) {
+            const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            questionCard.innerHTML = `<h3>${randomQuestion.title}</h3><p>${randomQuestion.body}</p>`;
+        } else {
+            questionCard.innerHTML = `No more questions available for Player ${player}.`;
+        }
+    }
 
 });
