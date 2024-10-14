@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
         notMatchedCards = [];  // Clear non-matched cards
         saveMatchedCardsToFirebase();  // Save the reset state
         alert("All non-matched cards have been reset. You can play through them again.");
-    };
+    });
                    } else {
                             console.error('resetButton not working')
    }
