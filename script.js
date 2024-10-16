@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const questions = [
         { id: 1, title: "Question 1", body: "Explanation for Question 1" },
         { id: 2, title: "Question 2", body: "Explanation for Question 2" },
+        { id: 4, title: "Question 4", body: "Explanation for Question 4" },
         { id: 3, title: "Question 3", body: "Explanation for Question 3" },
         // Add more questions as needed...
     ];
