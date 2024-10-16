@@ -1,5 +1,5 @@
 # Kinker
-letzter STand vom 13.10;
+letzter Stand vom 13.10;
                     
           1. Landingpage: loosk good, Mode 1 & Mode2 Button working
           2. Mode1: Entering Names works, In game layout shows player Names and whos turn it is. Matching cards does not work (Q1 yes & Q3 yes = Q2 match e.g.); different player                 names have same game save, as previous players. Back Home works.
